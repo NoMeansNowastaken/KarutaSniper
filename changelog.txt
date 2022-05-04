@@ -1,0 +1,21 @@
+b0.1:
+added ocr
+added levenshtein
+attempted to fix reacting at the right moment
+
+b0.2:
+added reporting to console if grabbing the card was successful
+improved levenshtein for less falses
+added more debug info
+added more supported ocr characters
+
+b0.2.1:
+added timestamps
+
+______________________________________________________
+
+
+TODO:
+add cooldown support
+better window title
+revamp ui
