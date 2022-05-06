@@ -1,3 +1,4 @@
+import asyncio
 from os import listdir, system
 from os.path import isfile, join
 import discord
@@ -7,16 +8,14 @@ from PIL import Image
 import requests
 import json
 from datetime import datetime
-from time import sleep
 from ocr import get_card, get_bottom, get_top
 from colorama import Fore, init
 import api
 
 init(convert=True)
-match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
+match = "(is dropping 3 cards!)|(I'm dropping 3 cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.2.1"
-global timer
+v = "b0.3.4"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
@@ -35,13 +34,21 @@ class Main(discord.Client):
         self.messageid = None
         self.important = None
         self.current_card = None
+        self.ready = False
+        self.react = True
+        self.timer = 0
 
     async def on_ready(self):
         system("cls")
-        tprint(f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name} ({self.user.id}){Fore.RESET}')
-        system(f"title Karuta Sniper - {v}")
+        tprint(
+            f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} ({self.user.id}){Fore.RESET}')
+        self.ready = True
+        asyncio.get_event_loop().create_task(self.cooldown())
 
     async def on_message(self, message):
+        if not self.ready:
+            return
+
         if str(message.author.id) != '646937666251915264':
             return
 
@@ -51,6 +58,9 @@ class Main(discord.Client):
         # print(message.content)
 
         if re.search(match, message.content):
+            if self.timer != 0:
+                return
+
             with open("temp\\card.webp", "wb") as file:
                 file.write(requests.get(message.attachments[0].url).content)
             for i in range(0, 3):
@@ -73,54 +83,49 @@ class Main(discord.Client):
                     if api.isSomething(char, i):
                         tprint(f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{char}{Fore.RESET}")
                         self.current_card = char
+                        self.react = True
                         with open("log.txt", "a") as f:
                             f.write(f"{current_time()} - Character: {char} - {message.attachments[0].url}\n")
-                        sleep(1)
-                        try:
-                            if img == "top1.png":
-                                self.messageid = message.id
-                                self.important = 1
-                                # await message.add_reaction("1️⃣")
-                            elif img == "top2.png":
-                                self.messageid = message.id
-                                self.important = 2
-                                # await message.add_reaction("2️⃣")
-                            elif img == "top3.png":
-                                self.messageid = message.id
-                                self.important = 3
-                                # await message.add_reaction("3️⃣")
-                        except discord.errors.Forbidden:
-                            tprint(f"{Fore.RED}Failed to react{Fore.RESET}")
+                        if img == "top1.png":
+                            self.messageid = message.id
+                            self.important = 1
+                            # await message.add_reaction("1️⃣")
+                        elif img == "top2.png":
+                            self.messageid = message.id
+                            self.important = 2
+                            # await message.add_reaction("2️⃣")
+                        elif img == "top3.png":
+                            self.messageid = message.id
+                            self.important = 3
+                            # await message.add_reaction("3️⃣")
                 for i in animes:
                     if api.isSomething(char, i):
                         tprint(f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}")
                         self.current_card = char
+                        self.react = True
                         with open("log.txt", "a") as f:
                             f.write(f"{current_time()} - Anime: {char} - {message.attachments[0].url}\n")
-                        sleep(1)
-                        try:
-                            if img == "bottom1.png":
-                                self.messageid = message.id
-                                self.important = 1
-                                # await message.add_reaction("1️⃣")
-                            elif img == "bottom2.png":
-                                self.messageid = message.id
-                                self.important = 2
-                                # await message.add_reaction("2️⃣")
-                            elif img == "bottom3.png":
-                                self.messageid = message.id
-                                self.important = 3
-                                # await message.add_reaction("3️⃣")
-                        except discord.errors.Forbidden:
-                            tprint(f"{Fore.RED}Failed to react{Fore.RESET}")
+                        if img == "bottom1.png":
+                            self.messageid = message.id
+                            self.important = 1
+                            # await message.add_reaction("1️⃣")
+                        elif img == "bottom2.png":
+                            self.messageid = message.id
+                            self.important = 2
+                            # await message.add_reaction("2️⃣")
+                        elif img == "bottom3.png":
+                            self.messageid = message.id
+                            self.important = 3
+                            # await message.add_reaction("3️⃣")
         if re.search(
-                f'<@{self.user.id}> took the \*\*.*\*\* card `.*`!|<@{self.user.id}> fought off .* and took the \*\*.*\*\* card `.*`!',
+                f'<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!',
                 message.content):
-            a = re.search(r'\*\*(.*)\*\* card `(.*)`!', message.content)
+            a = re.search(f'<@{str(self.user.id)}>.*took the \*\*(.*)\*\*', message.content)
+            self.timer += 540
             tprint(f"{Fore.BLUE}Obtained Card: {Fore.MAGENTA}{a.group(1)}{Fore.RESET}")
 
     async def on_reaction_add(self, reaction, user):
-        if user != '646937666251915264':
+        if str(user.id) == '646937666251915264':
             if reaction.message.id == self.messageid:
                 try:
                     if self.important == 1:
@@ -129,8 +134,21 @@ class Main(discord.Client):
                         await reaction.message.add_reaction("2️⃣")
                     elif self.important == 3:
                         await reaction.message.add_reaction("3️⃣")
-                except discord.errors.Forbidden as e:
-                    tprint(f"{Fore.RED}Error: Failed to react\nStacktrace: {e}{Fore.RESET}")
+                except discord.errors.Forbidden:
+                    return
+                if self.react:
+                    self.timer += 60
+                self.react = False
+
+    async def cooldown(self):
+        for i in range(10000000):
+            if self.timer > 0:
+                self.timer -= 1
+                await asyncio.sleep(1)
+                system(f"title Karuta Sniper {v} - On cooldown for {self.timer} seconds")
+            else:
+                await asyncio.sleep(1)
+                system(f"title Karuta Sniper {v} - Waiting for next card")
 
 
 def current_time():

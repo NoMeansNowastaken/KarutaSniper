@@ -12,10 +12,30 @@ added more supported ocr characters
 b0.2.1:
 added timestamps
 
+b0.3:
+added cooldown support
+removed useless try statement
+
+b0.3.1:
+fixed cooldowns to not break everything
+
+b0.3.2:
+fixed triple reactions
+
+b0.3.3:
+fixed typo
+fixed stackoverflow error
+fixed reactions not working due to me being stupid
+fixed cooldowns being longer than it should be
+
+b0.3.4:
+the obtained card in the console will now be what was obtained
+
 ______________________________________________________
 
 
 TODO:
-add cooldown support
 better window title
 revamp ui
+add support for card drops with 4 cards
+code cleanup
