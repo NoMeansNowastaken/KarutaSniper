@@ -120,7 +120,7 @@ class Main(discord.Client):
         if re.search(
                 f'<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!',
                 message.content):
-            a = re.search(f'<@{str(self.user.id)}>.*took the \*\*(.*)\*\*', message.content)
+            a = re.search(f'<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!', message.content)
             self.timer += 540
             tprint(f"{Fore.BLUE}Obtained Card: {Fore.MAGENTA}{a.group(1)}{Fore.RESET}")
 

@@ -5,7 +5,7 @@ def isSomething(inp, list_of_interested):
     ratio = Levenshtein.ratio(inp, list_of_interested)
     # print(f"{inp} == {list_of_interested} ? Accuracy: {ratio}")
 
-    if ratio > 0.77:
+    if ratio > 0.78:
         return True
     else:
         return False
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         animes = f.read().splitlines()
     with open("keywords\\characters.txt", "r") as f:
         characters = f.read().splitlines()
-    ok = "Bakery Girl"
+    ok = "Misa Kitagawa"
     for i in characters:
         ratio = Levenshtein.ratio(ok, i)
         print(f"Accuracy: {ratio} - {i}")
