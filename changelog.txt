@@ -31,6 +31,9 @@ fixed cooldowns being longer than it should be
 b0.3.4:
 the obtained card in the console will now be what was obtained
 
+b0.3.5:
+added obtaining cards to log
+
 ______________________________________________________
 
 

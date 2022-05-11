@@ -15,7 +15,7 @@ import api
 init(convert=True)
 match = "(is dropping 3 cards!)|(I'm dropping 3 cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.3.4"
+v = "b0.3.5"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
@@ -123,6 +123,8 @@ class Main(discord.Client):
             a = re.search(f'<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!', message.content)
             self.timer += 540
             tprint(f"{Fore.BLUE}Obtained Card: {Fore.MAGENTA}{a.group(1)}{Fore.RESET}")
+            with open("log.txt", "a") as f:
+                f.write(f"{current_time()} - Card: {a.group(1)} - {message.attachments[0].url}\n")
 
     async def on_reaction_add(self, reaction, user):
         if str(user.id) == '646937666251915264':
