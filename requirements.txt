@@ -1,7 +1,6 @@
 Levenshtein
 Pillow
 pytesseract
-asyncio
 discord.py-self
 requests
 colorama
