@@ -1,11 +1,11 @@
 import Levenshtein
 
 
-def isSomething(inp, list_of_interested):
+def isSomething(inp, list_of_interested, accuracy):
     ratio = Levenshtein.ratio(inp, list_of_interested)
     # print(f"{inp} == {list_of_interested} ? Accuracy: {ratio}")
 
-    if ratio > 0.78:
+    if ratio > accuracy:
         return True
     else:
         return False

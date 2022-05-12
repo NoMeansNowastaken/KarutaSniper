@@ -1,4 +1,7 @@
 {
   "token": "",
-  "channels": "826968791992500306"
+  "channels": "826968791992500306",
+  "accuracy": "0.78",
+  "log_hits": true,
+  "log_cardcollection": true
 }

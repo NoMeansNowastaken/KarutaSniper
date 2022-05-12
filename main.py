@@ -1,25 +1,28 @@
 import asyncio
+import json
+import re
+from datetime import datetime
 from os import listdir, system
 from os.path import isfile, join
 import discord
-import re
 import pytesseract
-from PIL import Image
 import requests
-import json
-from datetime import datetime
-from ocr import get_card, get_bottom, get_top
+from PIL import Image
 from colorama import Fore, init
 import api
+from ocr import get_card, get_bottom, get_top
 
 init(convert=True)
-match = "(is dropping 3 cards!)|(I'm dropping 3 cards since this server is currently active!)"
+match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.3.5"
+v = "b0.3.6"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
     channels = config["channels"]
+    accuracy = config["accuracy"]
+    loghits = config["log_hits"]
+    logcollection = config["log_collection"]
 
 with open("keywords\\characters.txt") as f:
     chars = f.read().splitlines()
@@ -80,12 +83,13 @@ class Main(discord.Client):
                 char = pytesseract.image_to_string(Image.open(path_to_ocr + '\\char\\' + img), lang='eng',
                                                    config=custom_config).strip()
                 for i in chars:
-                    if api.isSomething(char, i):
+                    if api.isSomething(char, i, accuracy):
                         tprint(f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{char}{Fore.RESET}")
                         self.current_card = char
                         self.react = True
-                        with open("log.txt", "a") as f:
-                            f.write(f"{current_time()} - Character: {char} - {message.attachments[0].url}\n")
+                        if loghits:
+                            with open("log.txt", "a") as f:
+                                f.write(f"{current_time()} - Character: {char} - {message.attachments[0].url}\n")
                         if img == "top1.png":
                             self.messageid = message.id
                             self.important = 1
@@ -99,12 +103,13 @@ class Main(discord.Client):
                             self.important = 3
                             # await message.add_reaction("3️⃣")
                 for i in animes:
-                    if api.isSomething(char, i):
+                    if api.isSomething(char, i, accuracy):
                         tprint(f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}")
                         self.current_card = char
                         self.react = True
-                        with open("log.txt", "a") as f:
-                            f.write(f"{current_time()} - Anime: {char} - {message.attachments[0].url}\n")
+                        if loghits:
+                            with open("log.txt", "a") as f:
+                                f.write(f"{current_time()} - Anime: {char} - {message.attachments[0].url}\n")
                         if img == "bottom1.png":
                             self.messageid = message.id
                             self.important = 1
@@ -123,8 +128,9 @@ class Main(discord.Client):
             a = re.search(f'<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!', message.content)
             self.timer += 540
             tprint(f"{Fore.BLUE}Obtained Card: {Fore.MAGENTA}{a.group(1)}{Fore.RESET}")
-            with open("log.txt", "a") as f:
-                f.write(f"{current_time()} - Card: {a.group(1)} - {message.attachments[0].url}\n")
+            if logcollection:
+                with open("log.txt", "a") as f:
+                    f.write(f"{current_time()} - Card: {a.group(1)} - {message.attachments[0].url}\n")
 
     async def on_reaction_add(self, reaction, user):
         if str(user.id) == '646937666251915264':
@@ -136,6 +142,8 @@ class Main(discord.Client):
                         await reaction.message.add_reaction("2️⃣")
                     elif self.important == 3:
                         await reaction.message.add_reaction("3️⃣")
+                    # elif self.important == 4:
+                    #     await reaction.message.add_reaction("4️⃣")
                 except discord.errors.Forbidden:
                     return
                 if self.react:

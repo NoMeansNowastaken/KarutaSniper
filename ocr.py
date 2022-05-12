@@ -68,20 +68,20 @@ def get_bottom(input, output):
 
 
 # TESTS
-# fname = download("https://cdn.discordapp.com/attachments/300255115259150339/788363007948226590/card.jpg")
-# path_to_ocr = "C:\\users\\user\\Desktop\\KarutaBotHack-main\\tests"
-# for i in range(0, 3):
-#     get_card(f"card{i + 1}.png", fname, i)
-#     get_card(f"card{i + 1}.png", fname, i)
-#     get_card(f"card{i + 1}.png", fname, i)
-#
-# for i in range(0, 3):
-#     get_top(f"card{i + 1}.png", f"{path_to_ocr}/top{i + 1}.png")
-#     get_bottom(f"card{i + 1}.png", f"{path_to_ocr}/bottom{i + 1}.png")
-#
-# onlyfiles = [f for f in listdir(path_to_ocr) if isfile(join(path_to_ocr, f))] print("File trovati: ", onlyfiles)
-# custom_config = r"--psm 10 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-# :-!\'\",.@&#0123456789()" for img in onlyfiles: print(pytesseract.image_to_string(Image.open(path_to_ocr + "/" +
-# img), lang='eng', config='--psm 6'))
-#
-# print("a")
+if __name__ == "__main__":
+    fname = download("https://media.discordapp.net/attachments/776520559621570621/974137396184641546/card.webp")
+    path_to_ocr = "C:\\users\\user\\Desktop\\KarutaBotHack-main\\tests"
+    for i in range(0, 3):
+        get_card(f"card{i + 1}.png", fname, i)
+        get_card(f"card{i + 1}.png", fname, i)
+        get_card(f"card{i + 1}.png", fname, i)
+
+    for i in range(0, 3):
+        get_top(f"card{i + 1}.png", f"{path_to_ocr}/top{i + 1}.png")
+        get_bottom(f"card{i + 1}.png", f"{path_to_ocr}/bottom{i + 1}.png")
+
+    onlyfiles = [f for f in listdir(path_to_ocr) if isfile(join(path_to_ocr, f))]
+    print("File trovati: ", onlyfiles)
+    custom_config = r"--psm 10 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz:!'\",.@&#0123456789()"
+    for img in onlyfiles:
+        print(pytesseract.image_to_string(Image.open(path_to_ocr + "/" + img), lang='eng', config='--psm 6').strip())

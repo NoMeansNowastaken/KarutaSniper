@@ -49,11 +49,18 @@ b0.3.4
 b0.3.5
 - added obtaining cards to log
 
+b0.3.6
+- added more configurability
+- began adding integration for 4 card drops
+
 
 ## Todo
 
 - better window title
 - revamp ui
-- add support for card drops with 4 cards
+- add support for card drops with 4 cards (more complicated than it looks or im just stupid)
 - code cleanup
-- more configurability
+
+# Credits
+
+- [RiccardoLunardi](https://github.com/riccardolunardi/KarutaBotHack) for the code written in ocr.py
