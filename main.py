@@ -15,12 +15,12 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.3.6"
+v = "b0.3.7"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
     channels = config["channels"]
-    accuracy = config["accuracy"]
+    accuracy = float(config["accuracy"])
     loghits = config["log_hits"]
     logcollection = config["log_collection"]
 

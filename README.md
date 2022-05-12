@@ -53,6 +53,10 @@ b0.3.6
 - added more configurability
 - began adding integration for 4 card drops
 
+b0.3.7
+- Hotfix: fixed float and str incompatibilities
+- Hotfix: fixed variable name issue
+
 
 ## Todo
 
