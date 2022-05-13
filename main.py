@@ -15,7 +15,7 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.3.7"
+v = "b0.3.8"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
@@ -40,6 +40,7 @@ class Main(discord.Client):
         self.ready = False
         self.react = True
         self.timer = 0
+        self.url = None
 
     async def on_ready(self):
         system("cls")
@@ -87,9 +88,10 @@ class Main(discord.Client):
                         tprint(f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{char}{Fore.RESET}")
                         self.current_card = char
                         self.react = True
+                        self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as f:
-                                f.write(f"{current_time()} - Character: {char} - {message.attachments[0].url}\n")
+                                f.write(f"{current_time()} - Character: {char} - {self.url}\n")
                         if img == "top1.png":
                             self.messageid = message.id
                             self.important = 1
@@ -107,9 +109,10 @@ class Main(discord.Client):
                         tprint(f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}")
                         self.current_card = char
                         self.react = True
+                        self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as f:
-                                f.write(f"{current_time()} - Anime: {char} - {message.attachments[0].url}\n")
+                                f.write(f"{current_time()} - Anime: {char} - {self.url}\n")
                         if img == "bottom1.png":
                             self.messageid = message.id
                             self.important = 1
@@ -130,7 +133,7 @@ class Main(discord.Client):
             tprint(f"{Fore.BLUE}Obtained Card: {Fore.MAGENTA}{a.group(1)}{Fore.RESET}")
             if logcollection:
                 with open("log.txt", "a") as f:
-                    f.write(f"{current_time()} - Card: {a.group(1)} - {message.attachments[0].url}\n")
+                    f.write(f"{current_time()} - Card: {a.group(1)} - {self.url}\n")
 
     async def on_reaction_add(self, reaction, user):
         if str(user.id) == '646937666251915264':

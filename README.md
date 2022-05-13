@@ -57,6 +57,9 @@ b0.3.7
 - Hotfix: fixed float and str incompatibilities
 - Hotfix: fixed variable name issue
 
+b0.3.8
+- Hotfix: fixed logs causing errors
+
 
 ## Todo
 
@@ -64,6 +67,8 @@ b0.3.7
 - revamp ui
 - add support for card drops with 4 cards (more complicated than it looks or im just stupid)
 - code cleanup
+- auto add token
+- add button support
 
 # Credits
 
