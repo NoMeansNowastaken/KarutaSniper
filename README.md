@@ -60,14 +60,17 @@ b0.3.7
 b0.3.8
 - Hotfix: fixed logs causing errors
 
+b0.4
+- made ui better
+- token finder if no token detected
+- better title
+- partial stats (not permanent)
+
 
 ## Todo
 
-- better window title
-- revamp ui
 - add support for card drops with 4 cards (more complicated than it looks or im just stupid)
 - code cleanup
-- auto add token
 - add button support
 
 # Credits

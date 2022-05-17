@@ -2,7 +2,7 @@ import asyncio
 import json
 import re
 from datetime import datetime
-from os import listdir, system
+from os import listdir, system, get_terminal_size
 from os.path import isfile, join
 import discord
 import pytesseract
@@ -41,11 +41,22 @@ class Main(discord.Client):
         self.react = True
         self.timer = 0
         self.url = None
+        self.missed = 0
+        self.collected = 0
 
     async def on_ready(self):
         system("cls")
+        cprint(f"""{Fore.MAGENTA}
+ ____  __.                    __             _________      .__                     
+|    |/ _|____ _______ __ ___/  |______     /   _____/ ____ |__|_____   ___________ 
+|      < \__  \\\\_  __ \  |  \   __\__  \    \_____  \ /    \|  \____ \_/ __ \_  __ \\
+|    |  \ / __ \|  | \/  |  /|  |  / __ \_  /        \   |  \  |  |_> >  ___/|  | \/
+|____|__ (____  /__|  |____/ |__| (____  / /_______  /___|  /__|   __/ \___  >__|   
+        \/    \/                       \/          \/     \/   |__|        \/       
+""")
+        print(Fore.MAGENTA + "─" * get_terminal_size().columns)
         tprint(
-            f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} ({self.user.id}){Fore.RESET}')
+            f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
         self.ready = True
         asyncio.get_event_loop().create_task(self.cooldown())
 
@@ -130,7 +141,9 @@ class Main(discord.Client):
                 message.content):
             a = re.search(f'<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!', message.content)
             self.timer += 540
-            tprint(f"{Fore.BLUE}Obtained Card: {Fore.MAGENTA}{a.group(1)}{Fore.RESET}")
+            self.missed -= 1
+            self.collected += 1
+            tprint(f"{Fore.BLUE}Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(1)}{Fore.RESET}")
             if logcollection:
                 with open("log.txt", "a") as f:
                     f.write(f"{current_time()} - Card: {a.group(1)} - {self.url}\n")
@@ -147,6 +160,7 @@ class Main(discord.Client):
                         await reaction.message.add_reaction("3️⃣")
                     # elif self.important == 4:
                     #     await reaction.message.add_reaction("4️⃣")
+                    self.missed += 1
                 except discord.errors.Forbidden:
                     return
                 if self.react:
@@ -158,10 +172,11 @@ class Main(discord.Client):
             if self.timer > 0:
                 self.timer -= 1
                 await asyncio.sleep(1)
-                system(f"title Karuta Sniper {v} - On cooldown for {self.timer} seconds")
+                system(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                       f"Cooldown: {self.timer} seconds")
             else:
                 await asyncio.sleep(1)
-                system(f"title Karuta Sniper {v} - Waiting for next card")
+                system(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready")
 
 
 def current_time():
@@ -171,6 +186,18 @@ def current_time():
 def tprint(message):
     print(f"{Fore.LIGHTBLUE_EX}{current_time()} - {Fore.RESET}{message}")
 
+
+def cprint(message):
+    print(message.center(get_terminal_size().columns))
+
+
+if token == "":
+    inp = input(f"{Fore.RED}No token found, would you like to find tokens from your pc? (y/n): {Fore.RESET}")
+    if inp == "y":
+        tokens = api.get_tokens()
+        for i in tokens:
+            print(f"{Fore.LIGHTBLUE_EX}{i}{Fore.RESET}")
+        exit()
 
 client = Main()
 tprint(f"{Fore.GREEN}Starting Bot{Fore.RESET}")
