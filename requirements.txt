@@ -1,5 +1,5 @@
 Levenshtein
-Pillow
+pillow
 pytesseract
 discord.py-self
 requests
