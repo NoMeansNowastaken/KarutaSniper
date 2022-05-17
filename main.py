@@ -15,7 +15,7 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.3.8"
+v = "b0.4"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
