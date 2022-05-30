@@ -15,7 +15,7 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.4"
+v = "b0.4.1"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
@@ -23,6 +23,7 @@ with open("config.json") as f:
     accuracy = float(config["accuracy"])
     loghits = config["log_hits"]
     logcollection = config["log_collection"]
+    timestamp = config["timestamp"]
 
 with open("keywords\\characters.txt") as f:
     chars = f.read().splitlines()
@@ -46,15 +47,15 @@ class Main(discord.Client):
 
     async def on_ready(self):
         system("cls")
-        cprint(f"""{Fore.MAGENTA}
+        print(f"""{Fore.LIGHTMAGENTA_EX}
  ____  __.                    __             _________      .__                     
 |    |/ _|____ _______ __ ___/  |______     /   _____/ ____ |__|_____   ___________ 
 |      < \__  \\\\_  __ \  |  \   __\__  \    \_____  \ /    \|  \____ \_/ __ \_  __ \\
 |    |  \ / __ \|  | \/  |  /|  |  / __ \_  /        \   |  \  |  |_> >  ___/|  | \/
 |____|__ (____  /__|  |____/ |__| (____  / /_______  /___|  /__|   __/ \___  >__|   
         \/    \/                       \/          \/     \/   |__|        \/       
-""")
-        print(Fore.MAGENTA + "─" * get_terminal_size().columns)
+""".center(get_terminal_size().columns))
+        print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
         self.ready = True
@@ -160,11 +161,11 @@ class Main(discord.Client):
                         await reaction.message.add_reaction("3️⃣")
                     # elif self.important == 4:
                     #     await reaction.message.add_reaction("4️⃣")
-                    self.missed += 1
                 except discord.errors.Forbidden:
                     return
                 if self.react:
                     self.timer += 60
+                    self.missed += 1
                 self.react = False
 
     async def cooldown(self):
@@ -184,11 +185,10 @@ def current_time():
 
 
 def tprint(message):
-    print(f"{Fore.LIGHTBLUE_EX}{current_time()} - {Fore.RESET}{message}")
-
-
-def cprint(message):
-    print(message.center(get_terminal_size().columns))
+    if timestamp:
+        print(f"{Fore.LIGHTBLUE_EX}{current_time()} - {Fore.RESET}{message}")
+    else:
+        print(message)
 
 
 if token == "":

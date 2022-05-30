@@ -66,6 +66,11 @@ b0.4
 - better title
 - partial stats (not permanent)
 
+b0.4.1
+- fixed stuff not working
+- fixed stats
+- added more config stuff
+
 
 ## Todo
 
