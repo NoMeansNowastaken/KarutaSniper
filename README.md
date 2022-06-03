@@ -5,11 +5,11 @@ A bot to automate collecting cards for the discord game Karuta
 
 1. Download repo
 2. Install requirements
-3. Install pytesseract
+3. Install pytesseract (and add to path)
 
 # How use
 
-Run main.py, Characters and Animes to sniper are in keywords
+Run main.py, Characters and Animes to snipe are in keywords
 
 # Changelog
 
