@@ -15,7 +15,7 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.4.1"
+v = "b0.4.2"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
@@ -47,14 +47,16 @@ class Main(discord.Client):
 
     async def on_ready(self):
         system("cls")
-        print(f"""{Fore.LIGHTMAGENTA_EX}
+        thing = f"""{Fore.LIGHTMAGENTA_EX}
  ____  __.                    __             _________      .__                     
 |    |/ _|____ _______ __ ___/  |______     /   _____/ ____ |__|_____   ___________ 
 |      < \__  \\\\_  __ \  |  \   __\__  \    \_____  \ /    \|  \____ \_/ __ \_  __ \\
 |    |  \ / __ \|  | \/  |  /|  |  / __ \_  /        \   |  \  |  |_> >  ___/|  | \/
 |____|__ (____  /__|  |____/ |__| (____  / /_______  /___|  /__|   __/ \___  >__|   
         \/    \/                       \/          \/     \/   |__|        \/       
-""".center(get_terminal_size().columns))
+"""
+        for line in thing.split('\n'):
+            print(line.center(get_terminal_size().columns))
         print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')

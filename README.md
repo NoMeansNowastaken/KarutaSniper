@@ -71,6 +71,9 @@ b0.4.1
 - fixed stats
 - added more config stuff
 
+b0.4.2
+- the logo thing is now centered
+
 
 ## Todo
 
