@@ -15,7 +15,7 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.4.3"
+v = "v1.0"
 update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
@@ -212,5 +212,5 @@ if token == "":
         exit()
 
 client = Main()
-tprint(f"{Fore.GREEN}Starting Bot{Fore.RESET}")
+tprint(f"{Fore.GREEN}Starting Bot - this might take up to a minute{Fore.RESET}")
 client.run(token)

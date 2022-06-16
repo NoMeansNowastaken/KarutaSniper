@@ -1,3 +1,5 @@
+# all of this code was taken from https://github.com/riccardolunardi/KarutaBotHack
+
 try:
     from PIL import Image
 except ImportError:
@@ -40,31 +42,15 @@ def get_card(path, input, n_img):
 def get_top(input, output):
     img = cv2.imread(input)
     crop_img = img[65:105, 45:230]
-    # Grayscale, Gaussian blur, Otsu's threshold
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (3, 3), 0)
-    thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
-    # Morph open to remove noise and invert image
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-    invert = 255 - opening
-    cv2.imwrite(output, invert)
+    cv2.imwrite(output, gray)
 
 
 def get_bottom(input, output):
     img = cv2.imread(input)
-    crop_img = img[55 + 255:110 + 255, 45:230]
-    # Grayscale, Gaussian blur, Otsu's threshold
+    crop_img = img[55 + 255:110 + 255, 45:235]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (3, 3), 0)
-    thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
-    # Morph open to remove noise and invert image
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-    invert = 255 - opening
-    cv2.imwrite(output, invert)
+    cv2.imwrite(output, gray)
 
 
 # TESTS
