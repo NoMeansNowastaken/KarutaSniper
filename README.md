@@ -74,6 +74,9 @@ b0.4.1
 b0.4.2
 - the logo thing is now centered
 
+b0.4.3
+- added update checking (can be disabled in config)
+
 
 ## Todo
 

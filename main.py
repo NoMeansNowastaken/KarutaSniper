@@ -15,7 +15,8 @@ from ocr import get_card, get_bottom, get_top
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b0.4.2"
+v = "b0.4.3"
+update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
     token = config["token"]
@@ -24,6 +25,7 @@ with open("config.json") as f:
     loghits = config["log_hits"]
     logcollection = config["log_collection"]
     timestamp = config["timestamp"]
+    update = config["update_check"]
 
 with open("keywords\\characters.txt") as f:
     chars = f.read().splitlines()
@@ -60,6 +62,9 @@ class Main(discord.Client):
         print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
+        latest_ver = update_check()
+        if latest_ver != v:
+            tprint(f"{Fore.RED}[!] You are on version {v}, while the latest version is {latest_ver}")
         self.ready = True
         asyncio.get_event_loop().create_task(self.cooldown())
 
@@ -179,7 +184,8 @@ class Main(discord.Client):
                        f"Cooldown: {self.timer} seconds")
             else:
                 await asyncio.sleep(1)
-                system(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready")
+                system(
+                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready")
 
 
 def current_time():
@@ -191,6 +197,10 @@ def tprint(message):
         print(f"{Fore.LIGHTBLUE_EX}{current_time()} - {Fore.RESET}{message}")
     else:
         print(message)
+
+
+def update_check():
+    return requests.get(url=update_url).text
 
 
 if token == "":

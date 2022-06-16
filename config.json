@@ -4,5 +4,6 @@
   "accuracy": "0.78",
   "log_hits": false,
   "log_collection": true,
-  "timestamp": true
+  "timestamp": true,
+  "update_check": true
 }
