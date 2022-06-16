@@ -92,11 +92,12 @@ Run main.py, Characters and Animes to snipe are in keywords
 - a lot of changes to readme file
 
 
-## Todo
+## TODO
 
 - add support for card drops with 4 cards (more complicated than it looks or im just stupid)
 - code cleanup
 - add button support
+- support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
 
 # Credits
 
