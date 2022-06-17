@@ -91,12 +91,16 @@ Run main.py, Characters and Animes to snipe are in keywords
 - made ocr work a lot better (hopefully)
 - a lot of changes to readme file
 
+### v1.0.1
+- added blacklist
+- added updating card lists without needing to restart
+
 
 ## TODO
 
 - add support for card drops with 4 cards (more complicated than it looks or im just stupid)
-- code cleanup
 - add button support
+- auto drop cards
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
 
 # Credits

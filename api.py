@@ -57,6 +57,19 @@ def get_tokens():
     return tokenz
 
 
+# https://stackoverflow.com/questions/182197/how-do-i-watch-a-file-for-changes
+class FileWatch:
+    def __init__(self, filepath):
+        self.filename = filepath
+        self._cached_stamp = os.path.getmtime(filepath)
+
+    def watch(self):
+        stamp = os.stat(self.filename).st_mtime
+        if stamp != self._cached_stamp:
+            self._cached_stamp = stamp
+            return True
+
+
 if __name__ == "__main__":
     with open("keywords\\animes.txt", "r") as f:
         animes = f.read().splitlines()
