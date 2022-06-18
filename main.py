@@ -1,7 +1,7 @@
 import asyncio
 import json
+import random
 import re
-import time
 from datetime import datetime
 from os import listdir, system, get_terminal_size, stat
 from os.path import isfile, join
@@ -11,22 +11,29 @@ import requests
 from PIL import Image
 from colorama import Fore, init
 import api
-from ocr import get_card, get_bottom, get_top
+from ocr import get_card, get_bottom, get_top, filelength
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v1.0.1"
+v = "v1.1"
 update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
-    token = config["token"]
-    channels = config["channels"]
-    accuracy = float(config["accuracy"])
-    loghits = config["log_hits"]
-    logcollection = config["log_collection"]
-    timestamp = config["timestamp"]
-    update = config["update_check"]
+
+token = config["token"]
+channels = config["channels"]
+accuracy = float(config["accuracy"])
+loghits = config["log_hits"]
+logcollection = config["log_collection"]
+timestamp = config["timestamp"]
+update = config["update_check"]
+autodrop = config["autodrop"]
+if autodrop:
+    autodropchannel = config["autodropchannel"]
+    dropdelay = config["dropdelay"]
+    randmin = int(config["randmin"])
+    randmax = int(config["randmax"])
 
 
 class Main(discord.Client):
@@ -45,6 +52,7 @@ class Main(discord.Client):
         self.url = None
         self.missed = 0
         self.collected = 0
+        self.cardnum = 0
 
     async def on_ready(self):
         system("cls")
@@ -90,14 +98,22 @@ class Main(discord.Client):
 
             with open("temp\\card.webp", "wb") as file:
                 file.write(requests.get(message.attachments[0].url).content)
-            for a in range(0, 3):
-                get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
-                get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
-                get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
+            if filelength("temp\\card.webp") == 836:
+                self.cardnum = 3
+                for a in range(3):
+                    get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
 
-            for a in range(0, 3):
-                get_top(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\top{a + 1}.png")
-                get_bottom(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\bottom{a + 1}.png")
+                for a in range(3):
+                    get_top(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\top{a + 1}.png")
+                    get_bottom(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\bottom{a + 1}.png")
+            else:
+                self.cardnum = 4
+                for a in range(4):
+                    get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
+
+                for a in range(4):
+                    get_top(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\top{a + 1}.png")
+                    get_bottom(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\bottom{a + 1}.png")
 
             onlyfiles = [ff for ff in listdir("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char") if
                          isfile(join("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char", ff))]
@@ -106,6 +122,8 @@ class Main(discord.Client):
                             r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' \
                             r'@&0123456789/:- " '
             for img in onlyfiles:
+                if "4" in img and self.cardnum != 4:
+                    return
                 char = pytesseract.image_to_string(Image.open(path_to_ocr + '\\char\\' + img), lang='eng',
                                                    config=custom_config).strip()
                 for a in self.chars:
@@ -126,6 +144,9 @@ class Main(discord.Client):
                         elif img == "top3.png":
                             self.messageid = message.id
                             self.important = 3
+                        elif img == "top4.png":
+                            self.messageid = message.id
+                            self.important = 4
                 for a in self.animes:
                     if api.isSomething(char, a, accuracy) and char not in self.aniblacklist:
                         tprint(f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}")
@@ -144,6 +165,9 @@ class Main(discord.Client):
                         elif img == "bottom3.png":
                             self.messageid = message.id
                             self.important = 3
+                        elif img == "bottom4.png":
+                            self.messageid = message.id
+                            self.important = 4
         if re.search(
                 f'<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!',
                 message.content):
@@ -166,8 +190,8 @@ class Main(discord.Client):
                         await reaction.message.add_reaction("2️⃣")
                     elif self.important == 3:
                         await reaction.message.add_reaction("3️⃣")
-                    # elif self.important == 4:
-                    #     await reaction.message.add_reaction("4️⃣")
+                    elif self.important == 4:
+                        await reaction.message.add_reaction("4️⃣")
                 except discord.errors.Forbidden:
                     return
                 if self.react:
@@ -208,6 +232,22 @@ class Main(discord.Client):
             await asyncio.sleep(1)
             if bruh.watch():
                 await self.update_files()
+
+    async def autodrop(self):
+        channel = self.get_channel(autodropchannel)
+        while True:
+            await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
+            if self.timer == 0:
+                async with channel.typing():
+                    await asyncio.sleep(random.uniform(0.2, 1))
+                await channel.send("kd")
+                tprint(f"{Fore.WHITE}Auto Dropped Cards")
+            else:
+                await asyncio.sleep(self.timer)
+                async with channel.typing():
+                    await asyncio.sleep(random.uniform(0.2, 1))
+                await channel.send("kd")
+                tprint(f"{Fore.WHITE}Auto Dropped Cards")
 
 
 def current_time():

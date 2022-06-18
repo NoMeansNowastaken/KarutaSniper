@@ -5,5 +5,10 @@
   "log_hits": false,
   "log_collection": true,
   "timestamp": true,
-  "update_check": true
+  "update_check": true,
+  "autodrop": true,
+  "autodropchannel": "826968791992500306",
+  "dropdelay": 1800,
+  "randmin": 100,
+  "randmax": 1000
 }

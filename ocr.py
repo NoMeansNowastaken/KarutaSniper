@@ -23,6 +23,11 @@ def download(url):
     return filename
 
 
+def filelength(filepath):
+    im = cv2.imread(filepath)
+    return im.shape[1]
+
+
 def change_contrast(img, level):
     factor = (259 * (level + 255)) / (255 * (259 - level))
 
