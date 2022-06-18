@@ -9,6 +9,7 @@ A bot to automate collecting cards for the discord game Karuta
 3. [Changelog](#changelog)
 4. [Todo](#todo)
 5. [Credits](#credits)
+6. [Disclaimer](#disclaimer)
 
 
 ## Installation
@@ -105,6 +106,10 @@ Run main.py, Characters and Animes to snipe are in keywords
 - add button support
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
 
-# Credits
+## Credits
 
 - [RiccardoLunardi](https://github.com/riccardolunardi/KarutaBotHack) for the code written in ocr.py
+
+## Disclaimer
+
+This is for educational purposes only blah blah blah, I don't condone breaking discord's TOS or karuta's, it is not my fault if you get banned from karuta or discord.
