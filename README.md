@@ -104,11 +104,15 @@ Run main.py, Characters and Animes to snipe are in keywords
 
 - Hotfix: forgot to activate the autodrop &#128128;
 
+### v1.2
+
+- added support for buttons
+
 
 ## TODO
 
-- add button support
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
+- improve stuff
 
 ## Credits
 

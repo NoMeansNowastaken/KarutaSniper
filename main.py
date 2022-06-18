@@ -16,7 +16,7 @@ from ocr import get_card, get_bottom, get_top, filelength
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v1.1"
+v = "v1.2"
 update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
@@ -79,19 +79,12 @@ class Main(discord.Client):
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\aniblacklist.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\charblacklist.txt"))
-        asyncio.get_event_loop().create_task(self.autodrop())
+        if autodrop:
+            asyncio.get_event_loop().create_task(self.autodrop())
 
     async def on_message(self, message):
-        if not self.ready:
+        if not self.ready or str(message.author.id) != '646937666251915264' or str(message.channel.id) not in channels:
             return
-
-        if str(message.author.id) != '646937666251915264':
-            return
-
-        if str(message.channel.id) not in channels:
-            return
-
-        # print(message.content)
 
         if re.search(match, message.content):
             if self.timer != 0:
@@ -200,6 +193,22 @@ class Main(discord.Client):
                     self.missed += 1
                 self.react = False
 
+    async def on_interaction(self, interaction):
+        if str(interaction.user.id) == '646937666251915264':
+            if interaction.message.id == self.messageid:
+                if self.important == 1 and interaction.emoji == "1️⃣":
+                    await interaction.click()
+                elif self.important == 2 and interaction.emoji == "2️⃣":
+                    await interaction.click()
+                elif self.important == 3 and interaction.emoji == "3️⃣":
+                    await interaction.click()
+                elif self.important == 4 and interaction.emoji == "4️⃣":
+                    await interaction.click()
+                if self.react:
+                    self.timer += 60
+                    self.missed += 1
+                self.react = False
+
     async def cooldown(self):
         for a in range(10000000):
             if self.timer > 0:
@@ -244,7 +253,7 @@ class Main(discord.Client):
                 await channel.send("kd")
                 tprint(f"{Fore.WHITE}Auto Dropped Cards")
             else:
-                await asyncio.sleep(self.timer)
+                await asyncio.sleep(self.timer + random.randint(10, 60))
                 async with channel.typing():
                     await asyncio.sleep(random.uniform(0.2, 1))
                 await channel.send("kd")
