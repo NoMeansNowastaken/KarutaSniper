@@ -100,6 +100,10 @@ Run main.py, Characters and Animes to snipe are in keywords
 - added support for card drops with 4 cards (idk why it took so long)
 - added auto dropping cards
 
+### v1.1.1
+
+- Hotfix: forgot to activate the autodrop &#128128;
+
 
 ## TODO
 

@@ -79,6 +79,7 @@ class Main(discord.Client):
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\aniblacklist.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\charblacklist.txt"))
+        asyncio.get_event_loop().create_task(self.autodrop())
 
     async def on_message(self, message):
         if not self.ready:
