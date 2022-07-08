@@ -4,19 +4,25 @@ A bot to automate collecting cards for the discord game Karuta
 
 # Stuff in readme
 
-1. [Installation](#installation)
-2. [Use](#how-use)
-3. [Changelog](#changelog)
-4. [Todo](#todo)
-5. [Credits](#credits)
-6. [Disclaimer](#disclaimer)
+1. [Known Issues](#known-issues)
+2. [Installation](#installation)
+3. [Use](#how-use)
+4. [Changelog](#changelog)
+5. [Todo](#todo)
+6. [Credits](#credits)
+7. [Disclaimer](#disclaimer)
+
+## Known Issues
+
+- Clicking on buttons returns error 400
 
 
 ## Installation
 
 1. Download repo
 2. Install requirements
-3. Install pytesseract (and add to path)
+3. Install [discord.py-self](https://github.com/dolfies/discord.py-self) from repo (you need version 2 or higher)
+4. Install pytesseract (and add to path)
 
 ## How use
 
@@ -107,6 +113,12 @@ Run main.py, Characters and Animes to snipe are in keywords
 ### v1.2
 
 - added support for buttons
+
+### b1.2.1
+
+- Added debug stuff
+- turning timestamp off will turn it off on the log now
+- fixed newlines not getting removed
 
 
 ## TODO

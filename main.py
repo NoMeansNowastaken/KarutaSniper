@@ -3,7 +3,8 @@ import json
 import random
 import re
 from datetime import datetime
-from os import listdir, system, get_terminal_size, stat
+from os import listdir, get_terminal_size
+from subprocess import Popen
 from os.path import isfile, join
 import discord
 import pytesseract
@@ -16,8 +17,8 @@ from ocr import get_card, get_bottom, get_top, filelength
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v1.2"
-update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
+v = "b1.2.1"
+update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
 with open("config.json") as f:
     config = json.load(f)
 
@@ -29,6 +30,7 @@ logcollection = config["log_collection"]
 timestamp = config["timestamp"]
 update = config["update_check"]
 autodrop = config["autodrop"]
+debug = config["debug"]
 if autodrop:
     autodropchannel = config["autodropchannel"]
     dropdelay = config["dropdelay"]
@@ -55,7 +57,8 @@ class Main(discord.Client):
         self.cardnum = 0
 
     async def on_ready(self):
-        system("cls")
+        Popen("cls", shell=True)
+        await asyncio.sleep(0.5)
         thing = f"""{Fore.LIGHTMAGENTA_EX}
  ____  __.                    __             _________      .__                     
 |    |/ _|____ _______ __ ___/  |______     /   _____/ ____ |__|_____   ___________ 
@@ -72,6 +75,7 @@ class Main(discord.Client):
         latest_ver = update_check()
         if latest_ver != v:
             tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
+        dprint(f"discord.py-self version {discord.__version__}")
         await self.update_files()
         self.ready = True
         asyncio.get_event_loop().create_task(self.cooldown())
@@ -112,7 +116,7 @@ class Main(discord.Client):
             onlyfiles = [ff for ff in listdir("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char") if
                          isfile(join("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char", ff))]
             # print("File trovati: ", onlyfiles)
-            custom_config = r'--psm 6 --oem 3 -c ' \
+            custom_config = r'--psm 7 --oem 3 -c ' \
                             r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' \
                             r'@&0123456789/:- " '
             for img in onlyfiles:
@@ -120,48 +124,101 @@ class Main(discord.Client):
                     continue
                 char = pytesseract.image_to_string(Image.open(path_to_ocr + '\\char\\' + img), lang='eng',
                                                    config=custom_config).strip()
+                if message.components:
+                    buttons = message.components[0].children
+                else:
+                    buttons = []
                 for a in self.chars:
                     if api.isSomething(char, a, accuracy) and char not in self.charblacklist:
                         tprint(f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{char}{Fore.RESET}")
+                        cid = message.channel.id
                         self.current_card = char
                         self.react = True
                         self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as ff:
-                                ff.write(f"{current_time()} - Character: {char} - {self.url}\n")
+                                if timestamp:
+                                    ff.write(f"{current_time()} - Character: {char} - {self.url}\n")
+                                else:
+                                    ff.write(f"Character: {char} - {self.url}\n")
                         if img == "top1.png":
-                            self.messageid = message.id
-                            self.important = 1
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                                await asyncio.sleep(1)
+                                await buttons[0].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 1
                         elif img == "top2.png":
-                            self.messageid = message.id
-                            self.important = 2
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
+                                await buttons[1].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 2
                         elif img == "top3.png":
-                            self.messageid = message.id
-                            self.important = 3
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
+                                await buttons[2].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 3
                         elif img == "top4.png":
-                            self.messageid = message.id
-                            self.important = 4
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
+                                await buttons[3].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 4
                 for a in self.animes:
                     if api.isSomething(char, a, accuracy) and char not in self.aniblacklist:
                         tprint(f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}")
+                        cid = message.channel.id
                         self.current_card = char
                         self.react = True
                         self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as ff:
-                                ff.write(f"{current_time()} - Anime: {char} - {self.url}\n")
+                                if timestamp:
+                                    ff.write(f"{current_time()} - Anime: {char} - {self.url}\n")
+                                else:
+                                    ff.write(f"Anime: {char} - {self.url}\n")
                         if img == "bottom1.png":
-                            self.messageid = message.id
-                            self.important = 1
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                                await buttons[0].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 1
                         elif img == "bottom2.png":
-                            self.messageid = message.id
-                            self.important = 2
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
+                                await buttons[1].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 2
                         elif img == "bottom3.png":
-                            self.messageid = message.id
-                            self.important = 3
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
+                                await buttons[2].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 3
                         elif img == "bottom4.png":
-                            self.messageid = message.id
-                            self.important = 4
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
+                                await buttons[3].click()
+                                await self.afterclick()
+                            else:
+                                self.messageid = message.id
+                                self.important = 4
         if re.search(
                 f'<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!',
                 message.content):
@@ -172,7 +229,10 @@ class Main(discord.Client):
             tprint(f"{Fore.BLUE}Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(1)}{Fore.RESET}")
             if logcollection:
                 with open("log.txt", "a") as ff:
-                    ff.write(f"{current_time()} - Card: {a.group(1)} - {self.url}\n")
+                    if timestamp:
+                        ff.write(f"{current_time()} - Card: {a.group(1)} - {self.url}\n")
+                    else:
+                        ff.write(f"Card: {a.group(1)} - {self.url}\n")
 
     async def on_reaction_add(self, reaction, user):
         if str(user.id) == '646937666251915264':
@@ -191,22 +251,7 @@ class Main(discord.Client):
                 if self.react:
                     self.timer += 60
                     self.missed += 1
-                self.react = False
-
-    async def on_interaction(self, interaction):
-        if str(interaction.user.id) == '646937666251915264':
-            if interaction.message.id == self.messageid:
-                if self.important == 1 and interaction.emoji == "1️⃣":
-                    await interaction.click()
-                elif self.important == 2 and interaction.emoji == "2️⃣":
-                    await interaction.click()
-                elif self.important == 3 and interaction.emoji == "3️⃣":
-                    await interaction.click()
-                elif self.important == 4 and interaction.emoji == "4️⃣":
-                    await interaction.click()
-                if self.react:
-                    self.timer += 60
-                    self.missed += 1
+                dprint(f"{Fore.BLUE}Reacted with {Fore.LIGHTMAGENTA_EX}{self.important} successfully{Fore.RESET}")
                 self.react = False
 
     async def cooldown(self):
@@ -214,12 +259,11 @@ class Main(discord.Client):
             if self.timer > 0:
                 self.timer -= 1
                 await asyncio.sleep(1)
-                system(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                       f"Cooldown: {self.timer} seconds")
+                Popen(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                      f"cooldown for {self.timer} seconds", shell=True)
             else:
                 await asyncio.sleep(1)
-                system(
-                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready")
+                Popen(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready", shell=True)
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -251,17 +295,32 @@ class Main(discord.Client):
                 async with channel.typing():
                     await asyncio.sleep(random.uniform(0.2, 1))
                 await channel.send("kd")
-                tprint(f"{Fore.WHITE}Auto Dropped Cards")
+                tprint(f"{Fore.LIGHTWHITE_EX}Auto Dropped Cards")
             else:
                 await asyncio.sleep(self.timer + random.randint(10, 60))
                 async with channel.typing():
                     await asyncio.sleep(random.uniform(0.2, 1))
                 await channel.send("kd")
-                tprint(f"{Fore.WHITE}Auto Dropped Cards")
+                tprint(f"{Fore.LIGHTWHITE_EX}Auto Dropped Cards")
+
+    async def afterclick(self):
+        dprint(f"Clicked on Button")
+        self.timer += 60
+        self.missed += 1
+        self.react = False
 
 
 def current_time():
     return datetime.now().strftime("%H:%M:%S")
+
+
+def isbutton(data):
+    if data in [776520559621570621, 648044573536550922]:
+        dprint(f"{Fore.LIGHTGREEN_EX}Button Detected - {data}")
+        return True
+    else:
+        dprint(f"{Fore.RED}Not a button channel - {data}")
+        return False
 
 
 def tprint(message):
@@ -269,6 +328,11 @@ def tprint(message):
         print(f"{Fore.LIGHTBLUE_EX}{current_time()} - {Fore.RESET}{message}")
     else:
         print(message)
+
+
+def dprint(message):
+    if debug:
+        tprint(f"{Fore.LIGHTRED_EX}Debug{Fore.BLUE} - {message}")
 
 
 def update_check():
@@ -284,5 +348,10 @@ if token == "":
         exit()
 
 client = Main()
-tprint(f"{Fore.GREEN}Starting Bot - This might take up to a minute{Fore.RESET}")
-client.run(token)
+tprint(f"{Fore.GREEN}Starting Bot{Fore.RESET}")
+try:
+    client.run(token)
+except KeyboardInterrupt:
+    tprint(f"{Fore.RED}Ctrl-C detected\nExiting...{Fore.RESET}")
+    client.close()
+    exit()

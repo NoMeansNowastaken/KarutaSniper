@@ -1,6 +1,6 @@
 {
   "token": "",
-  "channels": "['826968791992500306', '776520559621570621', '648044573536550922']",
+  "channels": "['826968791992500306']",
   "accuracy": "0.78",
   "log_hits": false,
   "log_collection": true,
@@ -10,5 +10,6 @@
   "autodropchannel": 826968791992500306,
   "dropdelay": 1800,
   "randmin": 100,
-  "randmax": 1000
+  "randmax": 1000,
+  "debug": true
 }
