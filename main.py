@@ -117,7 +117,7 @@ class Main(discord.Client):
                             r'@&0123456789/:- " '
             for img in onlyfiles:
                 if "4" in img and self.cardnum != 4:
-                    return
+                    continue
                 char = pytesseract.image_to_string(Image.open(path_to_ocr + '\\char\\' + img), lang='eng',
                                                    config=custom_config).strip()
                 for a in self.chars:
