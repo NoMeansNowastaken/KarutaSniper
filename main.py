@@ -16,7 +16,7 @@ from ocr import get_card, get_bottom, get_top, filelength
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v1.2"
+v = "v1.2H1"
 update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
@@ -109,8 +109,8 @@ class Main(discord.Client):
                     get_top(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\top{a + 1}.png")
                     get_bottom(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\bottom{a + 1}.png")
 
-            onlyfiles = [ff for ff in listdir("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char") if
-                         isfile(join("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char", ff))]
+            onlyfiles = [ff for ff in listdir("temp\\char") if
+                         isfile(join("temp\\char", ff))]
             # print("File trovati: ", onlyfiles)
             custom_config = r'--psm 6 --oem 3 -c ' \
                             r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' \
