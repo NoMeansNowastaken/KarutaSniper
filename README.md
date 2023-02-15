@@ -4,12 +4,18 @@ A bot to automate collecting cards for the discord game Karuta
 
 # Stuff in readme
 
-1. [Installation](#installation)
-2. [Use](#how-use)
-3. [Changelog](#changelog)
-4. [Todo](#todo)
-5. [Credits](#credits)
-6. [Disclaimer](#disclaimer)
+1. [Known Issues](#known-issues)
+2. [Installation](#installation)
+3. [Use](#how-use)
+4. [Changelog](#changelog)
+5. [Todo](#todo)
+6. [Credits](#credits)
+7. [Disclaimer](#disclaimer)
+
+
+## Known Issues
+
+Buttons don't work
 
 
 ## Installation
