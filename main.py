@@ -12,13 +12,16 @@ import requests
 from PIL import Image
 from colorama import Fore, init
 import api
-from ocr import get_card, get_bottom, get_top, filelength
+from ocr import get_card, get_bottom, get_top, get_print, filelength
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b1.2.1"
-update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
+v = "b1.2.4"
+if "b" in v:
+    update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
+else:
+    update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
 
@@ -31,6 +34,9 @@ timestamp = config["timestamp"]
 update = config["update_check"]
 autodrop = config["autodrop"]
 debug = config["debug"]
+cprint = config["check_print"]
+if cprint:
+    pn = int(config["print_number"])
 if autodrop:
     autodropchannel = config["autodropchannel"]
     dropdelay = config["dropdelay"]
@@ -72,9 +78,9 @@ class Main(discord.Client):
         print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
-        latest_ver = update_check()
-        if latest_ver != v:
-            tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
+        #latest_ver = update_check()
+        #if latest_ver != v:
+        #    tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
         dprint(f"discord.py-self version {discord.__version__}")
         await self.update_files()
         self.ready = True
@@ -104,6 +110,8 @@ class Main(discord.Client):
                 for a in range(3):
                     get_top(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\top{a + 1}.png")
                     get_bottom(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\bottom{a + 1}.png")
+                    if cprint:
+                        get_print(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\print{a + 1}.png")
             else:
                 self.cardnum = 4
                 for a in range(4):
@@ -112,13 +120,19 @@ class Main(discord.Client):
                 for a in range(4):
                     get_top(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\top{a + 1}.png")
                     get_bottom(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\bottom{a + 1}.png")
+                    if cprint:
+                        get_print(f"{path_to_ocr}\\card{a + 1}.png", f"{path_to_ocr}\\char\\print{a + 1}.png")
 
-            onlyfiles = [ff for ff in listdir("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char") if
-                         isfile(join("C:\\users\\user\\pycharmprojects\\karuta bot\\temp\\char", ff))]
+            onlyfiles = [ff for ff in listdir("temp\\char") if
+                         isfile(join("temp\\char", ff))]
             # print("File trovati: ", onlyfiles)
             custom_config = r'--psm 7 --oem 3 -c ' \
                             r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' \
                             r'@&0123456789/:- " '
+
+            def check(reaction):
+                return reaction.message.id == message.id
+
             for img in onlyfiles:
                 if "4" in img and self.cardnum != 4:
                     continue
@@ -148,32 +162,32 @@ class Main(discord.Client):
                                 await buttons[0].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 1
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '1️⃣')
                         elif img == "top2.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
                                 await buttons[1].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 2
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '2️⃣')
                         elif img == "top3.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
                                 await buttons[2].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 3
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '3️⃣')
                         elif img == "top4.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
                                 await buttons[3].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 4
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '4️⃣')
                 for a in self.animes:
                     if api.isSomething(char, a, accuracy) and char not in self.aniblacklist:
                         tprint(f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}")
@@ -193,32 +207,81 @@ class Main(discord.Client):
                                 await buttons[0].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 1
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '1️⃣')
                         elif img == "bottom2.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
                                 await buttons[1].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 2
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '2️⃣')
                         elif img == "bottom3.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
                                 await buttons[2].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 3
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '3️⃣')
                         elif img == "bottom4.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
                                 await buttons[3].click()
                                 await self.afterclick()
                             else:
-                                self.messageid = message.id
-                                self.important = 4
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '4️⃣')
+                if cprint and "print" in img:
+                    if char == "":
+                        return
+                    num = int(re.sub("\D", "", re.sub("-.*\d|-", "", char)))
+                    dprint(char + " - " + str(num))
+                    if num <= pn and num not in self.aniblacklist and char not in self.charblacklist:
+                        tprint(f"{Fore.GREEN}Found Print #: {Fore.MAGENTA}{num}{Fore.RESET}")
+                        cid = message.channel.id
+                        self.current_card = char
+                        self.react = True
+                        self.url = message.attachments[0].url
+                        if loghits:
+                            with open("log.txt", "a") as ff:
+                                if timestamp:
+                                    ff.write(f"{current_time()} - Print Number: {char} - {self.url}\n")
+                                else:
+                                    ff.write(f"Print Number: {char} - {self.url}\n")
+                        if img == "print1.png":
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                                await buttons[0].click()
+                                await self.afterclick()
+                            else:
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '1️⃣')
+                        elif img == "print2.png":
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
+                                await buttons[1].click()
+                                await self.afterclick()
+                            else:
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '2️⃣')
+                        elif img == "print3.png":
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
+                                await buttons[2].click()
+                                await self.afterclick()
+                            else:
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '3️⃣')
+                        elif img == "print4.png":
+                            if isbutton(cid):
+                                dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
+                                await buttons[3].click()
+                                await self.afterclick()
+                            else:
+                                reaction = await self.wait_for('reaction_add', check=check)
+                                await self.react_add(reaction, '4️⃣')
         if re.search(
                 f'<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!',
                 message.content):
@@ -234,25 +297,16 @@ class Main(discord.Client):
                     else:
                         ff.write(f"Card: {a.group(1)} - {self.url}\n")
 
-    async def on_reaction_add(self, reaction, user):
-        if str(user.id) == '646937666251915264':
-            if reaction.message.id == self.messageid:
-                try:
-                    if self.important == 1:
-                        await reaction.message.add_reaction("1️⃣")
-                    elif self.important == 2:
-                        await reaction.message.add_reaction("2️⃣")
-                    elif self.important == 3:
-                        await reaction.message.add_reaction("3️⃣")
-                    elif self.important == 4:
-                        await reaction.message.add_reaction("4️⃣")
-                except discord.errors.Forbidden:
-                    return
-                if self.react:
-                    self.timer += 60
-                    self.missed += 1
-                dprint(f"{Fore.BLUE}Reacted with {Fore.LIGHTMAGENTA_EX}{self.important} successfully{Fore.RESET}")
-                self.react = False
+    async def react_add(self, reaction, emoji):
+        try:
+            await reaction.message.add_reaction(emoji)
+        except discord.errors.Forbidden:
+            return
+        if self.react:
+            self.timer += 60
+            self.missed += 1
+        dprint(f"{Fore.BLUE}Reacted with {Fore.LIGHTMAGENTA_EX}{self.important} successfully{Fore.RESET}")
+        self.react = False
 
     async def cooldown(self):
         for a in range(10000000):
@@ -263,7 +317,9 @@ class Main(discord.Client):
                       f"cooldown for {self.timer} seconds", shell=True)
             else:
                 await asyncio.sleep(1)
-                Popen(f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready", shell=True)
+                Popen(
+                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
+                    shell=True)
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -342,7 +398,7 @@ def update_check():
 if token == "":
     inp = input(f"{Fore.RED}No token found, would you like to find tokens from your pc? (y/n): {Fore.RESET}")
     if inp == "y":
-        tokens = api.get_tokens()
+        tokens = api.get_tokens(False)
         for i in tokens:
             print(f"{Fore.LIGHTBLUE_EX}{i}{Fore.RESET}")
         exit()

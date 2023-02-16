@@ -15,6 +15,7 @@ A bot to automate collecting cards for the discord game Karuta
 ## Known Issues
 
 - Clicking on buttons returns error 400
+- Reactions are broken right now but at least the print number works (kinda)
 
 
 ## Installation
@@ -120,6 +121,13 @@ Run main.py, Characters and Animes to snipe are in keywords
 - turning timestamp off will turn it off on the log now
 - fixed newlines not getting removed
 
+### b1.2.2
+
+- rewrote reaction code (but still broken)
+
+### b1.2.3
+
+- added support for print numbers
 
 ## TODO
 
