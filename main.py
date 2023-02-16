@@ -78,9 +78,9 @@ class Main(discord.Client):
         print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
-        #latest_ver = update_check()
-        #if latest_ver != v:
-        #    tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
+        latest_ver = update_check()
+        if latest_ver != v:
+            tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
         dprint(f"discord.py-self version {discord.__version__}")
         await self.update_files()
         self.ready = True
