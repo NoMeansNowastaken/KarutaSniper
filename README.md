@@ -11,6 +11,7 @@ A bot to automate collecting cards for the discord game Karuta
 5. [Todo](#todo)
 6. [Credits](#credits)
 7. [Disclaimer](#disclaimer)
+8. [Contact Me](#contact-me)
 
 
 ## Known Issues
@@ -127,3 +128,8 @@ Run main.py, Characters and Animes to snipe are in keywords
 ## Disclaimer
 
 This is for educational purposes only blah blah blah, I don't condone breaking discord's TOS or karuta's, it is not my fault if you get banned from karuta or discord.
+
+## Contact Me
+This is my current discord tag, and only public way to contact me (besides github)
+
+Discord: ```NoMeansNo#5750```
