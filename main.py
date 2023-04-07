@@ -16,7 +16,7 @@ from ocr import get_card, get_bottom, get_top, filelength
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v1.2H2"
+v = "v1.2H3"
 update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 with open("config.json") as f:
     config = json.load(f)
@@ -69,9 +69,10 @@ class Main(discord.Client):
         print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
-        latest_ver = update_check()
-        if latest_ver != v:
-            tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
+        if update:
+            latest_ver = update_check()
+            if latest_ver != v:
+                tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
         await self.update_files()
         self.ready = True
         asyncio.get_event_loop().create_task(self.cooldown())
