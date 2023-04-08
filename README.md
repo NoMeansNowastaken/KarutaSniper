@@ -129,6 +129,8 @@ Run main.py, Characters and Animes to snipe are in keywords
 
 This is for educational purposes only blah blah blah, I don't condone breaking discord's TOS or karuta's, it is not my fault if you get banned from karuta or discord.
 
+Also dont be that guy who clones this repo and then updates config.json with his token which basically gives anyone access to his account (yes someone did this)
+
 ## Contact Me
 This is my current discord tag, and only public way to contact me (besides github)
 
