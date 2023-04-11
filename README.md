@@ -23,7 +23,7 @@ Buttons don't work
 
 1. Download repo
 2. Install requirements
-3. Install pytesseract (and add to path)
+3. Install pytesseract (and add to path--[See this](https://github.com/NoMeansNowastaken/KarutaSniper/issues/7))
 
 ## How use
 
