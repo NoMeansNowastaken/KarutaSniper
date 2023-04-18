@@ -22,8 +22,7 @@ A bot to automate collecting cards for the discord game Karuta
 
 1. Download repo
 2. Install requirements
-3. Install [discord.py-self](https://github.com/dolfies/discord.py-self) from repo (you need version 2 or higher)
-4. Install pytesseract (and add to path)
+3. Install pytesseract (and add to path)
 
 ## How use
 
