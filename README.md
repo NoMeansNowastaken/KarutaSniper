@@ -21,11 +21,14 @@ A bot to automate collecting cards for the discord game Karuta
 ## Installation
 
 1. Download repo
-2. Install requirements
-3. Install [discord.py-self](https://github.com/dolfies/discord.py-self) from repo (you need version 2 or higher)
-4. Install pytesseract (and add to path)
+2. Run install.bat (if on windows)
+3. If that doesnt work or you are on a different os follow the instructions below
+4. Install requirements
+5. Install [discord.py-self](https://github.com/dolfies/discord.py-self) from repo (you need version 2 or higher)
+6. Install tesseract-ocr (and add to path)
+   1. If on windows prebuilt binaries can be found at https://github.com/UB-Mannheim/tesseract/wiki
 
-## How use
+## How to use
 
 Run main.py, Characters and Animes to snipe are in keywords
 
@@ -129,10 +132,17 @@ Run main.py, Characters and Animes to snipe are in keywords
 
 - added support for print numbers
 
+### b2.0
+
+- fixed weird newline that was appearing
+- reactions work again
+- tried to make print have less falses, but theres no general cropping solution
+- buttons now work
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
-- improve stuff
+- improve stuff/fix code
 
 ## Credits
 

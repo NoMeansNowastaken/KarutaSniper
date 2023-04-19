@@ -60,7 +60,7 @@ def get_bottom(input, output):
 
 def get_print(input, output):
     img = cv2.imread(input)
-    crop_img = img[372:385, 145:197]
+    crop_img = img[372:385, 145:203]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
     cv2.imwrite(output, gray)
 

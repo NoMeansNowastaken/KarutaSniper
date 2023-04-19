@@ -17,11 +17,11 @@ from ocr import get_card, get_bottom, get_top, get_print, filelength
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b1.2.4"
-if "b" in v:
-    update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
-else:
+v = "b2.0"
+if "v" in v:
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
+else:
+    update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
 with open("config.json") as f:
     config = json.load(f)
 
@@ -52,7 +52,6 @@ class Main(discord.Client):
         self.animes = None
         self.chars = None
         self.messageid = None
-        self.important = None
         self.current_card = None
         self.ready = False
         self.react = True
@@ -61,6 +60,7 @@ class Main(discord.Client):
         self.missed = 0
         self.collected = 0
         self.cardnum = 0
+        self.buttonz = None
 
     async def on_ready(self):
         Popen("cls", shell=True)
@@ -78,10 +78,11 @@ class Main(discord.Client):
         print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
             f'{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}')
-        latest_ver = update_check()
+        latest_ver = update_check().strip()
         if latest_ver != v:
             tprint(f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}")
         dprint(f"discord.py-self version {discord.__version__}")
+        dprint(f"Tesseract version {pytesseract.get_tesseract_version()}")
         await self.update_files()
         self.ready = True
         asyncio.get_event_loop().create_task(self.cooldown())
@@ -130,8 +131,16 @@ class Main(discord.Client):
                             r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' \
                             r'@&0123456789/:- " '
 
-            def check(reaction):
+            def check(reaction, user):
+                # dprint(f"rmid - {reaction.message.id} | mid - {message.id}")
                 return reaction.message.id == message.id
+
+            def mcheck(before, after):
+                if before.id == message.id:
+                    self.buttonz = after.components[0].children
+                    return True
+                else:
+                    return False
 
             for img in onlyfiles:
                 if "4" in img and self.cardnum != 4:
@@ -158,8 +167,8 @@ class Main(discord.Client):
                         if img == "top1.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await asyncio.sleep(1)
-                                await buttons[0].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[0].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -167,7 +176,8 @@ class Main(discord.Client):
                         elif img == "top2.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
-                                await buttons[1].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[1].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -175,7 +185,8 @@ class Main(discord.Client):
                         elif img == "top3.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
-                                await buttons[2].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[2].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -183,7 +194,8 @@ class Main(discord.Client):
                         elif img == "top4.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
-                                await buttons[3].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[3].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -204,7 +216,8 @@ class Main(discord.Client):
                         if img == "bottom1.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await buttons[0].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[0].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -212,7 +225,8 @@ class Main(discord.Client):
                         elif img == "bottom2.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
-                                await buttons[1].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[1].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -220,7 +234,8 @@ class Main(discord.Client):
                         elif img == "bottom3.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
-                                await buttons[2].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[2].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -228,7 +243,8 @@ class Main(discord.Client):
                         elif img == "bottom4.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
-                                await buttons[3].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[3].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -236,8 +252,12 @@ class Main(discord.Client):
                 if cprint and "print" in img:
                     if char == "":
                         return
-                    num = int(re.sub("\D", "", re.sub("-.*\d|-", "", char)))
-                    dprint(char + " - " + str(num))
+                    try:
+                        num = int(re.sub("\D", "", re.sub("-.*\d|-", "", char)))
+                    except ValueError:
+                        num = 999999
+                        dprint(f"ValueError - current string: {char}")
+                    # dprint(char + " - " + str(num))
                     if num <= pn and num not in self.aniblacklist and char not in self.charblacklist:
                         tprint(f"{Fore.GREEN}Found Print #: {Fore.MAGENTA}{num}{Fore.RESET}")
                         cid = message.channel.id
@@ -250,10 +270,12 @@ class Main(discord.Client):
                                     ff.write(f"{current_time()} - Print Number: {char} - {self.url}\n")
                                 else:
                                     ff.write(f"Print Number: {char} - {self.url}\n")
+                        dprint(message.id)
                         if img == "print1.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await buttons[0].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[0].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -261,7 +283,8 @@ class Main(discord.Client):
                         elif img == "print2.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
-                                await buttons[1].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[1].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -269,7 +292,8 @@ class Main(discord.Client):
                         elif img == "print3.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
-                                await buttons[2].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[2].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -277,7 +301,8 @@ class Main(discord.Client):
                         elif img == "print4.png":
                             if isbutton(cid):
                                 dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
-                                await buttons[3].click()
+                                await self.wait_for('message_edit', check=mcheck)
+                                await self.buttonz[3].click()
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for('reaction_add', check=check)
@@ -298,14 +323,16 @@ class Main(discord.Client):
                         ff.write(f"Card: {a.group(1)} - {self.url}\n")
 
     async def react_add(self, reaction, emoji):
+        reaction, _ = reaction
         try:
+            await asyncio.sleep(random.uniform(.3, 1.3))
             await reaction.message.add_reaction(emoji)
         except discord.errors.Forbidden:
             return
         if self.react:
             self.timer += 60
             self.missed += 1
-        dprint(f"{Fore.BLUE}Reacted with {Fore.LIGHTMAGENTA_EX}{self.important} successfully{Fore.RESET}")
+        dprint(f"{Fore.BLUE}Reacted with {emoji} successfully{Fore.RESET}")
         self.react = False
 
     async def cooldown(self):
