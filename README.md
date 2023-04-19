@@ -135,3 +135,4 @@ Also dont be that guy who clones this repo and then updates config.json with his
 This is my current discord tag, and only public way to contact me (besides github)
 
 Discord: ```NoMeansNo#5750```
+Beware of a guy named Scorpion08#0001 (1017838925752049776) he is just reselling my code for profit, unfortunately I dont know more because he immediately blocked me.
