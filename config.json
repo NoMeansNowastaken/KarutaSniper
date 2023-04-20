@@ -10,8 +10,8 @@
   "autodropchannel": 826968791992500306,
   "dropdelay": 2955,
   "randmin": 425,
-  "randmax": 9000,
-  "debug": true,
+  "randmax": 900,
+  "debug": false,
   "check_print": true,
   "print_number": 1000
 }
