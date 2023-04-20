@@ -54,8 +54,8 @@ Note that sometimes the ocr can misread names and pick up cards you dont want. T
 - removed useless shit
 - just making sure there arent any bugs
 
-### v2.0rc1
-- merge with changes from master
+### v2.0
+- well i merged the wrong way so update ig
 
 
 ## TODO
