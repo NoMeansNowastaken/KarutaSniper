@@ -32,6 +32,7 @@ A bot to automate collecting cards for the discord game Karuta
 
 Run main.py, Characters and Animes to snipe are in keywords
 
+
 Note that sometimes the ocr can misread names and pick up cards you dont want. This is especially true for reading print numbers, so expect falses until it is improved
 
 ## Changelog
@@ -53,6 +54,10 @@ Note that sometimes the ocr can misread names and pick up cards you dont want. T
 - removed useless shit
 - just making sure there arent any bugs
 
+### v2.0rc1
+- merge with changes from master
+
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
@@ -67,3 +72,11 @@ Note that sometimes the ocr can misread names and pick up cards you dont want. T
 ## Disclaimer
 
 This is for educational purposes only blah blah blah, I don't condone breaking discord's TOS or karuta's, it is not my fault if you get banned from karuta or discord.
+
+Also dont be that guy who clones this repo and then updates config.json with his token which basically gives anyone access to his account (yes someone did this)
+
+## Contact Me
+This is my current discord tag, and only public way to contact me (besides github)
+
+Discord: ```NoMeansNo#5750```
+Beware of a guy named Scorpion08#0001 (1017838925752049776) he is just reselling my code for profit, unfortunately I dont know more because he immediately blocked me.
