@@ -58,6 +58,13 @@ def get_bottom(input, output):
     cv2.imwrite(output, gray)
 
 
+def get_print(input, output):
+    img = cv2.imread(input)
+    crop_img = img[372:385, 145:203]
+    gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(output, gray)
+
+
 # TESTS
 if __name__ == "__main__":
     fname = download("https://media.discordapp.net/attachments/776520559621570621/974137396184641546/card.webp")

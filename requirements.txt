@@ -1,7 +1,6 @@
 Levenshtein
 pillow
 pytesseract
-discord.py-self
 requests
 colorama
 opencv-python

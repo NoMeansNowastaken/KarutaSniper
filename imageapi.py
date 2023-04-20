@@ -3,5 +3,4 @@ import pytesseract
 
 
 def ocr():
-    text = pytesseract.image_to_string(Image.open('card.webp'))
-    return text
+    return pytesseract.image_to_string(Image.open('card.webp'))
