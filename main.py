@@ -19,7 +19,7 @@ from ocr import get_card, get_bottom, get_top, get_print, filelength
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.0rc1"
+v = "v2.0"
 if "v" in v:
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 else:
