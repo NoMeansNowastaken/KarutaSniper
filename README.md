@@ -14,8 +14,7 @@ A bot to automate collecting cards for the discord game Karuta
 
 ## Known Issues
 
-- Clicking on buttons returns error 400
-- Reactions are broken right now but at least the print number works (kinda)
+- print numbers unstable
 
 
 ## Installation
