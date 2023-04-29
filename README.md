@@ -7,15 +7,16 @@ A bot to automate collecting cards for the discord game Karuta
 1. [Known Issues](#known-issues)
 2. [Installation](#installation)
 3. [Use](#how-use)
-4. [Changelog](#changelog)
-5. [Todo](#todo)
-6. [Credits](#credits)
-7. [Disclaimer](#disclaimer)
+4. [Feature Explanation](#feature-explanation)
+5. [Changelog](#changelog)
+6. [Todo](#todo)
+7. [Credits](#credits)
+8. [Disclaimer](#disclaimer)
 
 ## Known Issues
 
-- Clicking on buttons returns error 400
-- Reactions are broken right now but at least the print number works (kinda)
+- print numbers and autofarm might be buggy
+- i fucked detection up; it might detect the same a few times
 
 
 ## Installation
@@ -24,8 +25,7 @@ A bot to automate collecting cards for the discord game Karuta
 2. Run install.bat (if on windows)
 3. If that doesnt work or you are on a different os follow the instructions below
 4. Install requirements
-5. Install [discord.py-self](https://github.com/dolfies/discord.py-self) from repo (you need version 2 or higher)
-6. Install tesseract-ocr (and add to path)
+5. Install tesseract-ocr (and add to path)
    1. If on windows prebuilt binaries can be found at https://github.com/UB-Mannheim/tesseract/wiki
 
 ## How to use
@@ -34,6 +34,19 @@ Run main.py, Characters and Animes to snipe are in keywords
 
 
 Note that sometimes the ocr can misread names and pick up cards you dont want. This is especially true for reading print numbers, so expect falses until it is improved
+
+
+## Feature Explanation
+
+I wont explain features that explain themselves
+
+- DropDelay - how long to wait in between autodrops (in seconds)
+- Randmin + randmax - extra delay added to dropdelay to look less robotic
+- Log Hits - log everytime it finds a card to log.txt along with the card image
+- Log Collection - Log every card it collects as well as the image
+- Check Print - Collect cards based on their print number (set by print_number)
+- Accuracy - Ocr (computer reading text) is not always accurate, so this will allow some misread characters, but at the cost of some false hits. Increase this for less falses, but also less forgiveness (and vice versa)
+
 
 ## Changelog
 
@@ -55,7 +68,18 @@ Note that sometimes the ocr can misread names and pick up cards you dont want. T
 - just making sure there arent any bugs
 
 ### v2.0
+
 - well i merged the wrong way so update ig
+
+
+### b2.1
+
+- aniblacklist also now works with character hits and vice versa
+- blacklist now follows accuracy setting as well
+- autofarm (thanks vu)
+- install.bat also now checks for admin privileges as its needed
+- fixed errors that came with rewriting stuff
+- small improvements to ui
 
 
 ## TODO
@@ -64,10 +88,12 @@ Note that sometimes the ocr can misread names and pick up cards you dont want. T
 - improve stuff/fix code
 - improve print numbers
 - first run setup
+- improve highly redundant code
 
 ## Credits
 
 - [RiccardoLunardi](https://github.com/riccardolunardi/KarutaBotHack) for the code written in ocr.py
+- Vu for the autofarm code
 
 ## Disclaimer
 
@@ -79,4 +105,5 @@ Also dont be that guy who clones this repo and then updates config.json with his
 This is my current discord tag, and only public way to contact me (besides github)
 
 Discord: ```NoMeansNo#5750```
-Beware of a guy named Scorpion08#0001 (1017838925752049776) he is just reselling my code for profit, unfortunately I dont know more because he immediately blocked me.
+
+Just Please use your brain when communicating, [don't start by saying hi and waiting for a response](https://nohello.net)

@@ -1,17 +1,19 @@
 {
   "token": "",
-  "channels": "['826968791992500306']",
-  "accuracy": "0.78",
+  "channels": "['648044573536550922', '826968791992500306']",
+  "accuracy": "0.815",
   "log_hits": false,
   "log_collection": true,
   "timestamp": true,
   "update_check": true,
   "autodrop": true,
   "autodropchannel": 826968791992500306,
+  "autofarm": false,
+  "resourcechannel": 69420,
   "dropdelay": 2955,
   "randmin": 425,
-  "randmax": 9000,
+  "randmax": 900,
   "debug": true,
-  "check_print": true,
-  "print_number": 1000
+  "check_print": false,
+  "print_number": 100
 }

@@ -2,6 +2,7 @@ import asyncio
 import json
 import random
 import re
+import sys
 from datetime import datetime
 from os import listdir, get_terminal_size
 from os.path import isfile, join
@@ -13,16 +14,17 @@ import requests
 from PIL import Image
 from colorama import Fore, init
 
-import api
-from ocr import get_card, get_bottom, get_top, get_print, filelength
+from lib import api
+from lib.ocr import get_card, get_bottom, get_top, get_print, filelength
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.0"
+v = "b2.1"
 if "v" in v:
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
 else:
+    beta = True
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
 with open("config.json") as f:
     config = json.load(f)
@@ -37,6 +39,9 @@ update = config["update_check"]
 autodrop = config["autodrop"]
 debug = config["debug"]
 cprint = config["check_print"]
+autofarm = config["autofarm"]
+if autofarm:
+    resourcechannel = config["resourcechannel"]
 if cprint:
     pn = int(config["print_number"])
 if autodrop:
@@ -47,8 +52,8 @@ if autodrop:
 
 
 class Main(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.charblacklist = None
         self.aniblacklist = None
         self.animes = None
@@ -63,6 +68,8 @@ class Main(discord.Client):
         self.collected = 0
         self.cardnum = 0
         self.buttons = None
+        if autofarm:
+            self.button = None
 
     async def on_ready(self):
         Popen("cls", shell=True)
@@ -75,18 +82,18 @@ class Main(discord.Client):
 |____|__ (____  /__|  |____/ |__| (____  / /_______  /___|  /__|   __/ \___  >__|   
         \/    \/                       \/          \/     \/   |__|        \/       
 """
-        for line in thing.split("\n"):
-            print(line.center(get_terminal_size().columns))
-        print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
+        if sys.gettrace() is None:
+            for line in thing.split("\n"):
+                print(line.center(get_terminal_size().columns))
+            print(Fore.LIGHTMAGENTA_EX + "─" * get_terminal_size().columns)
         tprint(
-            f"{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET}"
+            f"{Fore.BLUE}Logged in as {Fore.RED}{self.user.name}#{self.user.discriminator} {Fore.GREEN}({self.user.id}){Fore.RESET} "
         )
         latest_ver = update_check().strip()
         if latest_ver != v:
             tprint(
                 f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}"
             )
-        tprint(f"{Fore.LIGHTRED_EX}Public Announcement: Scorpion#0001 is a skid who is selling this for money dont trust him lmao")
         dprint(f"discord.py-self version {discord.__version__}")
         dprint(f"Tesseract version {pytesseract.get_tesseract_version()}")
         await self.update_files()
@@ -100,16 +107,20 @@ class Main(discord.Client):
         asyncio.get_event_loop().create_task(
             self.filewatch("keywords\\charblacklist.txt")
         )
+        # asyncio.get_event_loop().create_task(self.configwatch("config.json")) TODO: make work
         if autodrop:
             asyncio.get_event_loop().create_task(self.autodrop())
 
     async def on_message(self, message):
         if (
-                not self.ready
-                or str(message.author.id) != "646937666251915264"
-                or str(message.channel.id) not in channels
+            not self.ready
+            or str(message.author.id) != "646937666251915264"
+            or str(message.channel.id) not in channels
         ):
             return
+
+        if re.search("(A wishlisted card is dropping!)", message.content):
+            pass  # TODO: guess which card is the wishlisted one
 
         if re.search(match, message.content):
             if self.timer != 0:
@@ -120,38 +131,42 @@ class Main(discord.Client):
             if filelength("temp\\card.webp") == 836:
                 self.cardnum = 3
                 for a in range(3):
-                    get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
+                    await get_card(
+                        f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a
+                    )
 
                 for a in range(3):
-                    get_top(
+                    await get_top(
                         f"{path_to_ocr}\\card{a + 1}.png",
                         f"{path_to_ocr}\\char\\top{a + 1}.png",
                     )
-                    get_bottom(
+                    await get_bottom(
                         f"{path_to_ocr}\\card{a + 1}.png",
                         f"{path_to_ocr}\\char\\bottom{a + 1}.png",
                     )
                     if cprint:
-                        get_print(
+                        await get_print(
                             f"{path_to_ocr}\\card{a + 1}.png",
                             f"{path_to_ocr}\\char\\print{a + 1}.png",
                         )
             else:
                 self.cardnum = 4
                 for a in range(4):
-                    get_card(f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a)
+                    await get_card(
+                        f"{path_to_ocr}\\card{a + 1}.png", "temp\\card.webp", a
+                    )
 
                 for a in range(4):
-                    get_top(
+                    await get_top(
                         f"{path_to_ocr}\\card{a + 1}.png",
                         f"{path_to_ocr}\\char\\top{a + 1}.png",
                     )
-                    get_bottom(
+                    await get_bottom(
                         f"{path_to_ocr}\\card{a + 1}.png",
                         f"{path_to_ocr}\\char\\bottom{a + 1}.png",
                     )
                     if cprint:
-                        get_print(
+                        await get_print(
                             f"{path_to_ocr}\\card{a + 1}.png",
                             f"{path_to_ocr}\\char\\print{a + 1}.png",
                         )
@@ -161,7 +176,7 @@ class Main(discord.Client):
             ]
             # print("File trovati: ", onlyfiles)
             custom_config = (
-                r"--psm 7 --oem 3 -c "
+                r"--psm 6 --oem 3 -c "
                 r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
                 r'@&0123456789/:- " '
             )
@@ -172,39 +187,68 @@ class Main(discord.Client):
 
             def mcheck(before, after):
                 if before.id == message.id:
-                    self.buttons = after.components[0].children
-                    return True
+                    try:
+                        self.buttons = after.components[0].children
+                        return True
+                    except IndexError:
+                        dprint(f"Fuck - {after.components}")
                 else:
                     return False
 
             for img in onlyfiles:
                 if "4" in img and self.cardnum != 4:
                     continue
-                char = pytesseract.image_to_string(
-                    Image.open(path_to_ocr + "\\char\\" + img),
-                    lang="eng",
-                    config=custom_config,
-                ).strip()
+                charchar = (
+                    pytesseract.image_to_string(
+                        Image.open(
+                            path_to_ocr
+                            + "\\char\\top"
+                            + re.sub(r"\D", "", img)
+                            + ".png"
+                        ),
+                        lang="eng",
+                        config=custom_config,
+                    )
+                    .strip()
+                    .replace("\n", " ")
+                )
+                char = (
+                    pytesseract.image_to_string(
+                        Image.open(
+                            path_to_ocr
+                            + "\\char\\bottom"
+                            + re.sub(r"\D", "", img)
+                            + ".png"
+                        ),
+                        lang="eng",
+                        config=custom_config,
+                    )
+                    .strip()
+                    .replace("\n", " ")
+                )
                 for a in self.chars:
+                    if "top" not in img:
+                        break
                     if (
-                            api.isSomething(char, a, accuracy)
-                            and char not in self.charblacklist
+                        api.isSomething(charchar, a, accuracy)
+                        and not api.isSomething(charchar, self.charblacklist, accuracy)
+                        and not api.isSomething(char, self.aniblacklist, accuracy)
                     ):
                         tprint(
-                            f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{char}{Fore.RESET}"
+                            f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{charchar} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{char}{Fore.RESET}"
                         )
                         cid = message.channel.id
-                        self.current_card = char
+                        self.current_card = charchar
                         self.react = True
                         self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as ff:
                                 if timestamp:
                                     ff.write(
-                                        f"{current_time()} - Character: {char} - {self.url}\n"
+                                        f"{current_time()} - Character: {charchar} - {self.url}\n"
                                     )
                                 else:
-                                    ff.write(f"Character: {char} - {self.url}\n")
+                                    ff.write(f"Character: {charchar} - {self.url}\n")
                         if img == "top1.png":
                             if isbutton(cid):
                                 # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
@@ -249,13 +293,20 @@ class Main(discord.Client):
                                     "reaction_add", check=check
                                 )
                                 await self.react_add(reaction, "4️⃣")
-                for a in self.animes:
+                for (
+                    a
+                ) in (
+                    self.animes
+                ):  # TODO: fix this shit its so poorly coded no need to read anime titles twice
+                    if "bottom" not in img:
+                        break
                     if (
-                            api.isSomething(char, a, accuracy)
-                            and char not in self.aniblacklist
+                        api.isSomething(char, a, accuracy)
+                        and not api.isSomething(charchar, self.charblacklist, accuracy)
+                        and not api.isSomething(char, self.aniblacklist, accuracy)
                     ):
                         tprint(
-                            f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char}{Fore.RESET}"
+                            f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charchar}{Fore.RESET} "
                         )
                         cid = message.channel.id
                         self.current_card = char
@@ -314,34 +365,44 @@ class Main(discord.Client):
                                 )
                                 await self.react_add(reaction, "4️⃣")
                 if cprint and "print" in img:
-                    if char == "":
+                    custom_config = (
+                        r'--psm 8 --oem 3 -c tessedit_char_whitelist="0123456789"'
+                    )
+                    coolthing = pytesseract.image_to_string(
+                        Image.open(path_to_ocr + f"\\char\\{img}"),
+                        lang="eng",
+                        config=custom_config,
+                    ).strip()
+                    if coolthing == "":
                         return
                     try:
-                        num = int(re.sub("\D", "", re.sub("-.*\d|-", "", char)))
+                        num = int(re.sub("\D", "", re.sub("-.*\d|-", "", coolthing)))
                     except ValueError:
                         num = 999999
-                        dprint(f"ValueError - current string: {char}")
+                        dprint(f"ValueError - current string: {coolthing}")
                     # dprint(char + " - " + str(num))
                     if (
-                            num <= pn
-                            and num not in self.aniblacklist
-                            and char not in self.charblacklist
+                        num <= pn
+                        and char not in self.aniblacklist
+                        and charchar not in self.charblacklist
                     ):
                         tprint(
-                            f"{Fore.GREEN}Found Print #: {Fore.MAGENTA}{num}{Fore.RESET}"
+                            f"{Fore.GREEN}Found Print # {Fore.MAGENTA}{num}{Fore.RESET}"
                         )
                         cid = message.channel.id
-                        self.current_card = char
+                        self.current_card = charchar
                         self.react = True
                         self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as ff:
                                 if timestamp:
                                     ff.write(
-                                        f"{current_time()} - Print Number: {char} - {self.url}\n"
+                                        f"{current_time()} - Print Number: {coolthing} - {self.url}\n"
                                     )
                                 else:
-                                    ff.write(f"Print Number: {char} - {self.url}\n")
+                                    ff.write(
+                                        f"Print Number: {coolthing} - {self.url}\n"
+                                    )
                         if img == "print1.png":
                             if isbutton(cid):
                                 # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
@@ -387,8 +448,8 @@ class Main(discord.Client):
                                 )
                                 await self.react_add(reaction, "4️⃣")
         if re.search(
-                f"<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!",
-                message.content,
+            f"<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!",
+            message.content,
         ):
             a = re.search(
                 f"<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!",
@@ -412,9 +473,11 @@ class Main(discord.Client):
     async def react_add(self, reaction, emoji):
         reaction, _ = reaction
         try:
-            await asyncio.sleep(random.uniform(0.3, 1.3))
+            dprint(f"{Fore.BLUE}Attempting to react")
+            await asyncio.sleep(random.uniform(0.25, 0.97))
             await reaction.message.add_reaction(emoji)
-        except discord.errors.Forbidden:
+        except discord.errors.Forbidden as oopsie:
+            dprint(f"{Fore.RED}Fuck:\n{oopsie}")
             return
         if self.react:
             self.timer += 60
@@ -462,21 +525,89 @@ class Main(discord.Client):
             if bruh.watch():
                 await self.update_files()
 
+    async def configwatch(self, path):
+        bruh = api.FileWatch(path)
+        while True:
+            await asyncio.sleep(1)
+            if bruh.watch():
+                with open("config.json") as ff:
+                    pass  # TODO: stuff
+
+    async def autofarm(self):
+        channel = self.get_channel(974864831163289660)
+        while True:
+            async with channel.typing():
+                await asyncio.sleep(random.uniform(0.2, 1))
+            await channel.send("kw")
+            async for message in channel.history(limit=1):
+                print(message.content)
+                if "you do not have" in message.content:
+                    print("Autofarm - You dont have a permit")
+                else:
+                    matches = re.search(r"(\d+) hours", message.content)
+                    match1 = re.search(r"(\d+) hour", message.content)
+                    match0 = re.search(r"(\d+) minute", message.content)
+                    if matches:
+                        hours = int(match1.group(1))
+                        print(f"Autofarm - Waiting for {hours} hours to work again")
+                        await asyncio.sleep(hours * 3600 + 5)
+                    elif match1:
+                        hours = int(match1.group(1))
+                        print(f"Autofarm - Waiting for {hours} hour to work again")
+                        await asyncio.sleep(hours * 3600 + 5)
+                    elif match0:
+                        minutes = int(match0.group(1))
+                        print(f"Autofarm - Waiting for {minutes} minutes to work again")
+                        await asyncio.sleep(minutes * 3600 + 5)
+                    else:
+                        print("Autofarm - Processing...")
+                if message is not None:
+                    reply = await self.wait_for(
+                        "message", check=lambda m: m.author.id == 646937666251915264
+                    )
+                    if reply:
+                        await self.autofindresource()
+                        await reply.components[0].children[1].click()
+                        print("Autofarm - Worked successfully!")
+                        await asyncio.sleep(12 * 3600 + 5)  # 12 hours
+
+    async def autofindresource(self):
+        channel = self.get_channel(
+            resourcechannel  # TODO: variable
+        )  # your work/auto check for resource channel
+        async with channel.typing():
+            await asyncio.sleep(random.uniform(0.2, 1))
+        await channel.send("kn")
+        reply = await client.wait_for(
+            "message", check=lambda m: m.author.id == 646937666251915264
+        )
+        a = re.compile(
+            "`(\w+)` · \*\*(\d+)%\*\* tax · \*\*(\d+)(%\*\* power · \*\*(\d+)|\*)",
+            re.MULTILINE,
+        ).findall(reply.embeds[0].to_dict()["description"].replace(",", ""))
+        top = 0
+        material = None
+        for interest in a:
+            if not interest.count("") == 1:
+                if int(interest[4]) > top:
+                    top = int(interest[4])
+                    material = interest[0]
+
+            else:
+                top = int(interest[2])
+                material = interest[0]
+        async with channel.typing():
+            await asyncio.sleep(random.uniform(0.9, 1.7))
+        await channel.send(f"kjn abcde {material}")
+
     async def autodrop(self):
         channel = self.get_channel(autodropchannel)
-        while True:
+        while self.timer == 0:
             await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
-            if self.timer == 0:
-                async with channel.typing():
-                    await asyncio.sleep(random.uniform(0.2, 1))
-                await channel.send("kd")
-                tprint(f"{Fore.LIGHTWHITE_EX}Auto Dropped Cards")
-            else:
-                await asyncio.sleep(self.timer + random.randint(10, 60))
-                async with channel.typing():
-                    await asyncio.sleep(random.uniform(0.2, 1))
-                await channel.send("kd")
-                tprint(f"{Fore.LIGHTWHITE_EX}Auto Dropped Cards")
+            async with channel.typing():
+                await asyncio.sleep(random.uniform(0.2, 1))
+            await channel.send("kd")
+            tprint(f"{Fore.LIGHTWHITE_EX}Auto Dropped Cards")
 
     async def afterclick(self):
         dprint(f"Clicked on Button")

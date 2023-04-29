@@ -1,5 +1,20 @@
 @echo off
 
+net session >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo This script requires administrator privileges.
+    echo Please run the script as an administrator.
+    pause>nul
+    exit /b
+)
+
+where python >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo Error: Python is not installed.
+    pause>nul
+    exit /b
+)
+
 echo Installing Python requirements...
 pip install -r requirements.txt
 
