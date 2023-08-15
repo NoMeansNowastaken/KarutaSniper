@@ -65,10 +65,10 @@ def get_tokens(debug):
 class FileWatch:
     def __init__(self, filepath):
         self.filename = filepath
-        self._cached_stamp = os.path.getmtime(filepath)
+        self._cached_stamp = path.getmtime(filepath)
 
     def watch(self):
-        stamp = os.stat(self.filename).st_mtime
+        stamp = stat(self.filename).st_mtime
         if stamp != self._cached_stamp:
             self._cached_stamp = stamp
             return True
