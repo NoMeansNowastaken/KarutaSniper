@@ -6,3 +6,4 @@ colorama
 opencv-python
 discord.py-self
 pycryptodome
+pywin32
