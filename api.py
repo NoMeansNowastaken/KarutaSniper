@@ -5,6 +5,7 @@ from os import getlogin, listdir, path, stat
 from json import loads
 from re import findall
 from subprocess import Popen
+import Levenshtein
 
 
 def isSomething(inp, list_of_interested, accuracy):
