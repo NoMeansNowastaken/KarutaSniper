@@ -6,7 +6,7 @@ A bot to automate collecting cards for the discord game Karuta
 
 1. [Known Issues](#known-issues)
 2. [Installation](#installation)
-3. [Use](#how-use)
+3. [Use](#how-to-use)
 4. [Changelog](#changelog)
 5. [Todo](#todo)
 6. [Credits](#credits)
@@ -73,6 +73,12 @@ Note that sometimes the ocr can misread names and pick up cards you dont want. T
 This is for educational purposes only blah blah blah, I don't condone breaking discord's TOS or karuta's, it is not my fault if you get banned from karuta or discord.
 
 Also dont be that guy who clones this repo and then updates config.json with his token which basically gives anyone access to his account (yes someone did this)
+
+As you can see below there is no way me nor my 5+ alts that have been running since the creation of this repo will ever manage to get by their advanced systems
+
+![](https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/images/lmao.png)
+
+Taken from their top.gg profile
 
 ## Contact Me
 This is my current discord tag, and only public way to contact me (besides github)
