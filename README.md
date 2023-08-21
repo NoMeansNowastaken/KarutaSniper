@@ -11,6 +11,7 @@ A bot to automate collecting cards for the discord game Karuta
 5. [Todo](#todo)
 6. [Credits](#credits)
 7. [Disclaimer](#disclaimer)
+8. [Contact Me](#contact-me)
 
 ## Known Issues
 
