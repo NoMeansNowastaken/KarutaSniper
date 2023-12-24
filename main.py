@@ -125,7 +125,6 @@ class Main(discord.Client):
         asyncio.get_event_loop().create_task(
             self.filewatch("keywords\\charblacklist.txt")
         )
-        # asyncio.get_event_loop().create_task(self.configwatch("config.json")) TODO: make work
         if autodrop:
             asyncio.get_event_loop().create_task(self.autodrop())
 
@@ -951,9 +950,7 @@ if token == "":
         f"{Fore.RED}No token found, would you like to find tokens from your pc? (y/n): {Fore.RESET}"
     )
     if inp == "y":
-        tokens = api.get_tokens(False)
-        for i in tokens:
-            print(f"{Fore.LIGHTBLUE_EX}{i}{Fore.RESET}")
+        token = api.get_tokens(False)
         input("Press any key to exit...")
 
 client = Main()
