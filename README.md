@@ -22,7 +22,7 @@ A bot to automate collecting cards for the discord game Karuta
 ## Installation
 
 1. Download repo
-2. Run install.bat (if on windows)
+2. Run install.bat (if on windows) - its a file in the zip folder
 3. If that doesnt work or you are on a different os follow the instructions below
 4. Install requirements
 5. Install tesseract-ocr (and add to path)
@@ -46,6 +46,7 @@ I wont explain features that explain themselves
 - Log Collection - Log every card it collects as well as the image
 - Check Print - Collect cards based on their print number (set by print_number)
 - Accuracy - Ocr (computer reading text) is not always accurate, so this will allow some misread characters, but at the cost of some false hits. Increase this for less falses, but also less forgiveness (and vice versa)
+- Blaccuracy - accuracy but for matches with **only** aniblacklist
 
 
 ## Changelog
@@ -72,7 +73,7 @@ I wont explain features that explain themselves
 - well i merged the wrong way so update ig
 
 
-### b2.1
+### v2.1
 
 - aniblacklist also now works with character hits and vice versa
 - blacklist now follows accuracy setting as well
@@ -80,6 +81,8 @@ I wont explain features that explain themselves
 - install.bat also now checks for admin privileges as its needed
 - fixed errors that came with rewriting stuff
 - small improvements to ui
+- christmas update
+- added support for tofu bot
 
 
 ## TODO

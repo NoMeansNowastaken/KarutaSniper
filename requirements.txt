@@ -4,3 +4,4 @@ pytesseract
 requests
 colorama
 opencv-python
+discord.py-self

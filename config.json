@@ -2,6 +2,7 @@
   "token": "",
   "channels": "['648044573536550922', '826968791992500306']",
   "accuracy": "0.815",
+  "blaccuracy": "0.7",
   "log_hits": false,
   "log_collection": true,
   "timestamp": true,
@@ -13,7 +14,13 @@
   "dropdelay": 2955,
   "randmin": 425,
   "randmax": 900,
-  "debug": true,
-  "check_print": false,
-  "print_number": 100
+  "debug": false,
+  "check_print": true,
+  "print_number": 100,
+  "christmas": false,
+  "tofu": {
+    "enabled": false,
+    "channels": [858004885809922078,857978372688445481],
+    "check_print": false
+  }
 }
