@@ -5,3 +5,4 @@ requests
 colorama
 opencv-python
 discord.py-self
+pypiwin32

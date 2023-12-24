@@ -1,7 +1,11 @@
+import base64
+import json
 import os
 import re
-import base64
+
 import Levenshtein
+from Crypto.Cipher import AES
+from win32crpyt import CryptUnprotectData
 
 
 def isSomething(inp, list_of_interested, accuracy):
