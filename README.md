@@ -84,6 +84,11 @@ I wont explain features that explain themselves
 - christmas update
 - added support for tofu bot
 
+## v2.1.1
+
+- fixed typos
+- improved some functions
+- added more stuff for tofu bot
 
 ## TODO
 

@@ -1,6 +1,9 @@
 {
   "token": "",
-  "channels": "['648044573536550922', '826968791992500306']",
+  "channels": [
+    648044573536550922,
+    826968791992500306
+  ],
   "accuracy": "0.815",
   "blaccuracy": "0.7",
   "log_hits": false,
@@ -11,16 +14,22 @@
   "autodropchannel": 826968791992500306,
   "autofarm": false,
   "resourcechannel": 69420,
-  "dropdelay": 2955,
-  "randmin": 425,
-  "randmax": 900,
+  "dropdelay": 1869,
+  "randmin": 69,
+  "randmax": 420,
   "debug": false,
   "check_print": true,
   "print_number": 100,
-  "christmas": false,
+  "christmas": true,
   "tofu": {
     "enabled": false,
-    "channels": [858004885809922078,857978372688445481],
-    "check_print": false
+    "channels": [
+      858004885809922078,
+      857978372688445481
+    ],
+    "summon": false,
+    "summon_channel": 858004885809922078,
+    "check_print": false,
+    "grab_random": true
   }
 }

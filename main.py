@@ -18,9 +18,9 @@ from lib.ocr import *
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
-tofu_match = "(is summoning [2] cards!)"
+tofu_match = r"<@(\d*)> is summoning 2 cards!"
 path_to_ocr = "temp"
-v = "v2.1"
+v = "v2.1.1"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -56,6 +56,10 @@ if autodrop:
 if tofu_enabled:
     tofu_config = config["tofu"]
     tofu_channels = tofu_config["channels"]
+    shouldsummon = tofu_config["summon"]
+    if not shouldsummon:
+        summonchannel = tofu_config["summon_channel"]
+        grandom = tofu_config["grab_random"]
     tofu_cprint = tofu_config["check_print"]
 
 
@@ -108,8 +112,9 @@ class Main(discord.Client):
             tprint(
                 f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}"
             )
-        tprint(f"{Fore.GREEN}Note: Christmas event off by default, set christmas to true in config if you want "
-               f"it to grab bows (experimental feature, use at your own risk)")
+        if not christmas:
+            tprint(f"{Fore.GREEN}Note: Christmas event off by default, set christmas to true in config if you want "
+                   f"it to grab bows (experimental feature, use at your own risk)")
         dprint(f"discord.py-self version {discord.__version__}")
         dprint(f"Tesseract version {pytesseract.get_tesseract_version()}")
         if beta:
@@ -127,6 +132,10 @@ class Main(discord.Client):
         )
         if autodrop:
             asyncio.get_event_loop().create_task(self.autodrop())
+        if tofu_enabled:
+            asyncio.get_event_loop().create_task(self.tofu_cooldown())
+            if shouldsummon:
+                asyncio.get_event_loop().create_task(self.summon())
 
     async def on_reaction_add(self, reaction, user):
         if not self.ready or user.id != 646937666251915264 or str(reaction.message.channel.id) not in channels:
@@ -142,7 +151,7 @@ class Main(discord.Client):
         if (
                 not self.ready
                 or message.author.id != 646937666251915264
-                or str(cid) not in channels
+                or cid not in channels
         ):
             return
 
@@ -157,6 +166,10 @@ class Main(discord.Client):
             else:
                 return False
 
+        def check(reaction, user):
+            # dprint(f"rmid - {reaction.message.id} | mid - {message.id}")
+            return reaction.message.id == message.id
+
         if isbutton(cid) and christmas:
             if message.components:
                 buttons = message.components[0].children
@@ -164,6 +177,14 @@ class Main(discord.Client):
                     await self.wait_for("message_edit", check=mcheck)
                     await buttons[3].click()
                     tprint("Clicked on a ribbon")
+        elif christmas:
+            reaction = await self.wait_for(
+                "reaction_add", check=check
+            )
+            if reaction.emoji == "🎀":
+                await self.react_add(reaction, "🎀")
+            else:
+                dprint(reaction)
 
         if re.search("(A wishlisted card is dropping!)", message.content):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
@@ -226,10 +247,6 @@ class Main(discord.Client):
                 r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
                 r'@&0123456789/:- " '
             )
-
-            def check(reaction, user):
-                # dprint(f"rmid - {reaction.message.id} | mid - {message.id}")
-                return reaction.message.id == message.id
 
             for img in onlyfiles:
                 if "4" in img and self.cardnum != 4:
@@ -503,10 +520,11 @@ class Main(discord.Client):
 
     async def tofu(self, message):
         cid = message.channel.id
-        if str(cid) not in tofu_channels:
+        if cid not in tofu_channels:
             return
 
-        if re.search(tofu_match, message.content):
+        cool = re.search(tofu_match, message.content)
+        if cool:
             if self.tofutimer != 0:
                 return
 
@@ -652,7 +670,6 @@ class Main(discord.Client):
                                     ff.write(f"Tofu Anime: {char} - {self.tofuurl}\n")
                         if img == "bottom1.png":
                             if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[0].click()
                                 await self.afterclick()
@@ -663,7 +680,6 @@ class Main(discord.Client):
                                 await self.tofu_react_add(reaction, "1️⃣")
                         elif img == "bottom2.png":
                             if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[1].click()
                                 await self.afterclick()
@@ -713,7 +729,6 @@ class Main(discord.Client):
                                     )
                         if img == "print1.png":
                             if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[0].click()
                                 await self.afterclick()
@@ -724,7 +739,6 @@ class Main(discord.Client):
                                 await self.tofu_react_add(reaction, "1️⃣")
                         elif img == "print2.png":
                             if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[1].click()
                                 await self.afterclick()
@@ -733,6 +747,18 @@ class Main(discord.Client):
                                     "reaction_add", check=check
                                 )
                                 await self.tofu_react_add(reaction, "2️⃣")
+                if cool.group(1) == self.user.id and not self.tofureact:
+                    self.tofureact = True
+                    tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
+                    if isbutton(cid):
+                        await self.wait_for("message_edit", check=mcheck)
+                        await self.tofubuttons[3].click()
+                        await self.afterclick()
+                    else:
+                        reaction = await self.wait_for(
+                            "reaction_add", check=check
+                        )
+                        await self.tofu_react_add(reaction, "❓")
         if re.search(
                 f"<@{str(self.user.id)} grabbed .* |<@{str(self.user.id)}> fought off .* ",
                 message.content,
@@ -788,21 +814,34 @@ class Main(discord.Client):
         self.tofureact = False
 
     async def cooldown(self):
-        for a in range(10000000):
+        while True:
             if self.timer > 0:
                 self.timer -= 1
                 await asyncio.sleep(1)
-                Popen(
-                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                    f"cooldown for {self.timer} seconds",
-                    shell=True,
-                )
+                if self.tofutimer > 0:
+                    Popen(
+                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                        f"cooldown for {self.timer} seconds | Tofu on cooldown for {self.tofutimer} seconds",
+                        shell=True,
+                    )
+                else:
+                    Popen(
+                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                        f"cooldown for {self.timer} seconds",
+                        shell=True,
+                    )
             else:
                 await asyncio.sleep(1)
                 Popen(
                     f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
                     shell=True,
                 )
+
+    async def tofu_cooldown(self):
+        while True:
+            if self.tofutimer > 0:
+                self.tofutimer -= 1
+                await asyncio.sleep(1)
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -904,12 +943,25 @@ class Main(discord.Client):
 
     async def autodrop(self):
         channel = self.get_channel(autodropchannel)
-        while self.timer == 0:
+        while True:
             await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
+            while not self.timer == 0:
+                pass
             async with channel.typing():
                 await asyncio.sleep(random.uniform(0.2, 1))
             await channel.send("kd")
             tprint(f"{Fore.LIGHTWHITE_EX}Auto Dropped Cards")
+
+    async def summon(self):
+        channel = self.get_channel(summonchannel)
+        while True:
+            await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
+            while not self.timer == 0:
+                pass
+            async with channel.typing():
+                await asyncio.sleep(random.uniform(0.2, 1))
+            await channel.send("ts")
+            tprint(f"{Fore.LIGHTWHITE_EX}Summoned Cards")
 
     async def afterclick(self):
         dprint(f"Clicked on Button")

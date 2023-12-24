@@ -5,7 +5,7 @@ import re
 
 import Levenshtein
 from Crypto.Cipher import AES
-from win32crpyt import CryptUnprotectData
+from win32crypt import CryptUnprotectData
 
 
 def isSomething(inp, list_of_interested, accuracy):
