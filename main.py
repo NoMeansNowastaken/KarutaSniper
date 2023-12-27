@@ -20,7 +20,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.3"
+v = "v2.1.4"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -86,7 +86,7 @@ class Main(discord.Client):
         if tofu_enabled:
             self.tofutimer = 0
             self.tofu_current_card = None
-            self.tofureact = True
+            self.tofureact = False
             self.tofuurl = None
             self.tofubuttons = None
         if autofarm:
@@ -143,9 +143,10 @@ class Main(discord.Client):
     async def on_reaction_add(self, reaction, user):
         if not self.ready or user.id != 646937666251915264 or reaction.message.channel.id not in channels:
             return
-        if str(reaction.emoji) == "🎀":
+        if str(reaction.emoji) == "🎀" and christmas:
             await asyncio.sleep(random.uniform(0.1, 0.74))
             await reaction.message.add_reaction(reaction.emoji)
+            tprint("Clicked on a ribbon")
 
     async def on_message(self, message):
         cid = message.channel.id
@@ -171,7 +172,7 @@ class Main(discord.Client):
                 return False
 
         def check(reaction, user):
-            return reaction.message.id == message.id and str(reaction) == "🎀"
+            return reaction.message.id == message.id
 
         if isbutton(cid) and christmas:
             if message.components:
@@ -180,12 +181,6 @@ class Main(discord.Client):
                     await self.wait_for("message_edit", check=mcheck)
                     await buttons[3].click()
                     tprint("Clicked on a ribbon")
-        elif christmas:
-            reaction = await self.wait_for(
-                "reaction_add", check=check
-            )
-            await self.react_add(reaction, "🎀")
-            tprint("Clicked on a ribbon")
 
         if re.search("(A wishlisted card is dropping!)", message.content):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
@@ -748,19 +743,21 @@ class Main(discord.Client):
                                     "reaction_add", check=check
                                 )
                                 await self.tofu_react_add(reaction, "2️⃣")
-                if cool.group(2) == self.user.id and not self.tofureact:
-                    self.tofureact = True
-                    self.tofuurl = ""
-                    tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
-                    if isbutton(cid):
-                        await self.wait_for("message_edit", check=mcheck)
-                        await self.tofubuttons[3].click()
-                        await self.tofuafterclick()
-                    else:
-                        reaction = await self.wait_for(
-                            "reaction_add", check=check
-                        )
-                        await self.tofu_react_add(reaction, "❓")
+            tprint(cool.group(2))
+            tprint(self.tofureact)
+            if cool.group(2) == self.user.id and grandom and not self.tofureact:
+                self.tofureact = True
+                self.tofuurl = ""
+                tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
+                if isbutton(cid):
+                    await self.wait_for("message_edit", check=mcheck)
+                    await self.tofubuttons[3].click()
+                    await self.tofuafterclick()
+                else:
+                    reaction = await self.wait_for(
+                        "reaction_add", check=check
+                    )
+                    await self.tofu_react_add(reaction, "❓")
         if re.search(
                 f"<@{str(self.user.id)} grabbed .* |<@{str(self.user.id)}> fought off .* ",
                 message.content,
