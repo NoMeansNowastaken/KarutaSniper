@@ -18,9 +18,9 @@ from lib.ocr import *
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
-tofu_match = r"<@(\d*)> is summoning 2 cards!"
+tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.1"
+v = "v2.1.2"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -57,8 +57,11 @@ if tofu_enabled:
     tofu_config = config["tofu"]
     tofu_channels = tofu_config["channels"]
     shouldsummon = tofu_config["summon"]
-    if not shouldsummon:
+    if shouldsummon:
         summonchannel = tofu_config["summon_channel"]
+        tofu_delay = tofu_config["dropdelay"]
+        tofu_min = tofu_config["randmin"]
+        tofu_max = tofu_config["randmax"]
         grandom = tofu_config["grab_random"]
     tofu_cprint = tofu_config["check_print"]
 
@@ -120,7 +123,7 @@ class Main(discord.Client):
         if beta:
             tprint(f"{Fore.RED}[!] You are on the beta branch, please report all actual issues to the github repo")
         await self.update_files()
-        self.ready = True
+        dprint(f"Tofu Status: {tofu_enabled}")
         asyncio.get_event_loop().create_task(self.cooldown())
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\animes.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
@@ -136,9 +139,10 @@ class Main(discord.Client):
             asyncio.get_event_loop().create_task(self.tofu_cooldown())
             if shouldsummon:
                 asyncio.get_event_loop().create_task(self.summon())
+        self.ready = True
 
     async def on_reaction_add(self, reaction, user):
-        if not self.ready or user.id != 646937666251915264 or str(reaction.message.channel.id) not in channels:
+        if not self.ready or user.id != 646937666251915264 or reaction.message.channel.id not in channels:
             return
         if str(reaction.emoji) == "🎀":
             await asyncio.sleep(random.uniform(0.1, 0.74))
@@ -146,8 +150,9 @@ class Main(discord.Client):
 
     async def on_message(self, message):
         cid = message.channel.id
-        if self.ready and message.author.id == 792827809797898240:
-            await self.tofu(message)
+        if self.ready and tofu_enabled and message.author.id == 792827809797898240:
+            await asyncio.get_event_loop().create_task(self.tofu(message))
+            return
         if (
                 not self.ready
                 or message.author.id != 646937666251915264
@@ -167,8 +172,7 @@ class Main(discord.Client):
                 return False
 
         def check(reaction, user):
-            # dprint(f"rmid - {reaction.message.id} | mid - {message.id}")
-            return reaction.message.id == message.id
+            return reaction.message.id == message.id and str(reaction) == "🎀"
 
         if isbutton(cid) and christmas:
             if message.components:
@@ -181,10 +185,8 @@ class Main(discord.Client):
             reaction = await self.wait_for(
                 "reaction_add", check=check
             )
-            if reaction.emoji == "🎀":
-                await self.react_add(reaction, "🎀")
-            else:
-                dprint(reaction)
+            await self.react_add(reaction, "🎀")
+            tprint("Clicked on a ribbon")
 
         if re.search("(A wishlisted card is dropping!)", message.content):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
@@ -839,9 +841,9 @@ class Main(discord.Client):
 
     async def tofu_cooldown(self):
         while True:
+            await asyncio.sleep(1)
             if self.tofutimer > 0:
                 self.tofutimer -= 1
-                await asyncio.sleep(1)
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -875,7 +877,7 @@ class Main(discord.Client):
                     pass  # TODO: stuff
 
     async def autofarm(self):
-        channel = self.get_channel(974864831163289660)
+        channel = self.get_channel(resourcechannel)
         while True:
             async with channel.typing():
                 await asyncio.sleep(random.uniform(0.2, 1))
@@ -914,7 +916,7 @@ class Main(discord.Client):
 
     async def autofindresource(self):
         channel = self.get_channel(
-            resourcechannel  # TODO: variable
+            resourcechannel
         )  # your work/auto check for resource channel
         async with channel.typing():
             await asyncio.sleep(random.uniform(0.2, 1))
@@ -955,8 +957,8 @@ class Main(discord.Client):
     async def summon(self):
         channel = self.get_channel(summonchannel)
         while True:
-            await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
-            while not self.timer == 0:
+            await asyncio.sleep(tofu_delay + random.randint(tofu_min, tofu_max))
+            while not self.tofutimer == 0:
                 pass
             async with channel.typing():
                 await asyncio.sleep(random.uniform(0.2, 1))

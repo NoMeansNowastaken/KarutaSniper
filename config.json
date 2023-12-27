@@ -13,7 +13,7 @@
   "autodrop": true,
   "autodropchannel": 826968791992500306,
   "autofarm": false,
-  "resourcechannel": 69420,
+  "resourcechannel": 0,
   "dropdelay": 1869,
   "randmin": 69,
   "randmax": 420,
@@ -22,7 +22,7 @@
   "print_number": 100,
   "christmas": true,
   "tofu": {
-    "enabled": false,
+    "enabled": true,
     "channels": [
       858004885809922078,
       857978372688445481
@@ -30,6 +30,9 @@
     "summon": false,
     "summon_channel": 858004885809922078,
     "check_print": false,
-    "grab_random": true
+    "grab_random": true,
+    "dropdelay": 1269,
+    "randmin": 69,
+    "randmax": 420
   }
 }

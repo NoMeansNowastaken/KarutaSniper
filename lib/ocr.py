@@ -19,7 +19,7 @@ async def get_card(path, input0, n_img):
     cv2.imwrite(path, crop_img)
 
 
-def tofu_get_card(path, input0, n_img):
+async def tofu_get_card(path, input0, n_img):
     img0 = cv2.imread(input0)
     crop_img = img0[0:480, n_img * 313:313 + 313 * n_img]
     cv2.imwrite(path, crop_img)
@@ -32,7 +32,7 @@ async def get_top(input0, output):
     cv2.imwrite(output, gray)
 
 
-def tofu_get_top(input0, output):
+async def tofu_get_top(input0, output):
     img0 = cv2.imread(input0)
     crop_img = img0[27:77, 54:259]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
@@ -48,7 +48,7 @@ async def get_bottom(input0, output):
     cv2.imwrite(output, th)
 
 
-def tofu_get_bottom(input0, output):
+async def tofu_get_bottom(input0, output):
     img = cv2.imread(input0)
     crop_img = img[400:452, 55:260]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)

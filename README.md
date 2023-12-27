@@ -90,6 +90,10 @@ I wont explain features that explain themselves
 - improved some functions
 - added more stuff for tofu bot
 
+## v2.1.2
+
+- major bug fixes
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
