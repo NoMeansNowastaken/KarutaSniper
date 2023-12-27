@@ -20,7 +20,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.4"
+v = "v2.1.4H1"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -76,7 +76,7 @@ class Main(discord.Client):
         self.messageid = None
         self.current_card = None
         self.ready = False
-        self.react = True
+        self.react = False
         self.timer = 0
         self.url = None
         self.missed = 0
@@ -743,8 +743,6 @@ class Main(discord.Client):
                                     "reaction_add", check=check
                                 )
                                 await self.tofu_react_add(reaction, "2️⃣")
-            tprint(cool.group(2))
-            tprint(self.tofureact)
             if cool.group(2) == self.user.id and grandom and not self.tofureact:
                 self.tofureact = True
                 self.tofuurl = ""
