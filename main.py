@@ -20,7 +20,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.2"
+v = "v2.1.3"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -136,7 +136,6 @@ class Main(discord.Client):
         if autodrop:
             asyncio.get_event_loop().create_task(self.autodrop())
         if tofu_enabled:
-            asyncio.get_event_loop().create_task(self.tofu_cooldown())
             if shouldsummon:
                 asyncio.get_event_loop().create_task(self.summon())
         self.ready = True
@@ -674,7 +673,7 @@ class Main(discord.Client):
                             if isbutton(cid):
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[0].click()
-                                await self.afterclick()
+                                await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check
@@ -684,7 +683,7 @@ class Main(discord.Client):
                             if isbutton(cid):
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[1].click()
-                                await self.afterclick()
+                                await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check
@@ -733,7 +732,7 @@ class Main(discord.Client):
                             if isbutton(cid):
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[0].click()
-                                await self.afterclick()
+                                await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check
@@ -743,19 +742,20 @@ class Main(discord.Client):
                             if isbutton(cid):
                                 await self.wait_for("message_edit", check=mcheck)
                                 await self.tofubuttons[1].click()
-                                await self.afterclick()
+                                await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check
                                 )
                                 await self.tofu_react_add(reaction, "2️⃣")
-                if cool.group(1) == self.user.id and not self.tofureact:
+                if cool.group(2) == self.user.id and not self.tofureact:
                     self.tofureact = True
+                    self.tofuurl = ""
                     tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
                     if isbutton(cid):
                         await self.wait_for("message_edit", check=mcheck)
                         await self.tofubuttons[3].click()
-                        await self.afterclick()
+                        await self.tofuafterclick()
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -819,7 +819,6 @@ class Main(discord.Client):
         while True:
             if self.timer > 0:
                 self.timer -= 1
-                await asyncio.sleep(1)
                 if self.tofutimer > 0:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
@@ -832,18 +831,19 @@ class Main(discord.Client):
                         f"cooldown for {self.timer} seconds",
                         shell=True,
                     )
+            elif self.tofutimer > 0:
+                self.tofutimer -= 1
+                Popen(
+                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                    f"Tofu on cooldown for {self.tofutimer} seconds",
+                    shell=True,
+                )
             else:
-                await asyncio.sleep(1)
                 Popen(
                     f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
                     shell=True,
                 )
-
-    async def tofu_cooldown(self):
-        while True:
             await asyncio.sleep(1)
-            if self.tofutimer > 0:
-                self.tofutimer -= 1
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -970,6 +970,12 @@ class Main(discord.Client):
         self.timer += 60
         self.missed += 1
         self.react = False
+
+    async def tofuafterclick(self):
+        dprint(f"Clicked on Button")
+        self.tofutimer += 60
+        self.missed += 1
+        self.tofureact = False
 
 
 def current_time():

@@ -94,6 +94,10 @@ I wont explain features that explain themselves
 
 - major bug fixes
 
+## v2.1.3
+
+- minor fixes
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
