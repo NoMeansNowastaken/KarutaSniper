@@ -1,7 +1,6 @@
 # KarutaSniper
 A bot to automate collecting cards for the discord game Karuta
 
-
 # Stuff in readme
 
 1. [Known Issues](#known-issues)
@@ -85,23 +84,28 @@ I wont explain features that explain themselves
 - christmas update
 - added support for tofu bot
 
-## v2.1.1
+### v2.1.1
 
 - fixed typos
 - improved some functions
 - added more stuff for tofu bot
 
-## v2.1.2
+### v2.1.2
 
 - major bug fixes
 
-## v2.1.3
+### v2.1.3
 
 - minor fixes
 
-## v2.1.4
+### v2.1.4
 
 - more fixes
+
+### v2.1.5
+
+- improvements for non windows platforms
+- bug fixes
 
 ## TODO
 

@@ -4,6 +4,7 @@ import random
 import re
 import sys
 from datetime import datetime
+import os
 from os import listdir, get_terminal_size
 from os.path import isfile, join
 from subprocess import Popen
@@ -20,7 +21,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.4H1"
+v = "v2.1.5"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -29,6 +30,11 @@ else:
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/beta/version.txt"
 with open("config.json") as f:
     config = json.load(f)
+
+if os.name == 'nt':
+    title = True
+else:
+    title = False
 
 token = config["token"]
 channels = config["channels"]
@@ -93,7 +99,10 @@ class Main(discord.Client):
             self.button = None
 
     async def on_ready(self):
-        Popen("cls", shell=True)
+        if title:
+            Popen("cls", shell=True)
+        else:
+            Popen("clear", shell=True)
         await asyncio.sleep(0.5)
         thing = f"""{Fore.LIGHTMAGENTA_EX}
  ____  __.                    __             _________      .__                     
@@ -144,6 +153,7 @@ class Main(discord.Client):
         if not self.ready or user.id != 646937666251915264 or reaction.message.channel.id not in channels:
             return
         if str(reaction.emoji) == "🎀" and christmas:
+            dprint("Ribbon Detected")
             await asyncio.sleep(random.uniform(0.1, 0.74))
             await reaction.message.add_reaction(reaction.emoji)
             tprint("Clicked on a ribbon")
@@ -178,6 +188,7 @@ class Main(discord.Client):
             if message.components:
                 buttons = message.components[0].children
                 if len(buttons) == 4 and buttons[3].emoji == "🎀":
+                    dprint("Ribbon Detected")
                     await self.wait_for("message_edit", check=mcheck)
                     await buttons[3].click()
                     tprint("Clicked on a ribbon")
@@ -743,7 +754,7 @@ class Main(discord.Client):
                                     "reaction_add", check=check
                                 )
                                 await self.tofu_react_add(reaction, "2️⃣")
-            if cool.group(2) == self.user.id and grandom and not self.tofureact:
+            if cool.group(2) == str(self.user.id) and grandom and not self.tofureact:
                 self.tofureact = True
                 self.tofuurl = ""
                 tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
@@ -757,7 +768,7 @@ class Main(discord.Client):
                     )
                     await self.tofu_react_add(reaction, "❓")
         if re.search(
-                f"<@{str(self.user.id)} grabbed .* |<@{str(self.user.id)}> fought off .* ",
+                f"(<@{str(self.user.id)} grabbed .* )|(<@{str(self.user.id)}> fought off .* )",
                 message.content,
         ):
             a = re.search(
@@ -814,29 +825,30 @@ class Main(discord.Client):
         while True:
             if self.timer > 0:
                 self.timer -= 1
-                if self.tofutimer > 0:
+                if self.tofutimer > 0 and title:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                        f"cooldown for {self.timer} seconds | Tofu on cooldown for {self.tofutimer} seconds",
-                        shell=True,
+                        f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
+                        shell=True
                     )
-                else:
+                elif title:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
                         f"cooldown for {self.timer} seconds",
-                        shell=True,
+                        shell=True
                     )
             elif self.tofutimer > 0:
                 self.tofutimer -= 1
-                Popen(
-                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                    f"Tofu on cooldown for {self.tofutimer} seconds",
-                    shell=True,
-                )
-            else:
+                if title:
+                    Popen(
+                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Tof"
+                        f"u on cooldown for {self.tofutimer} seconds",
+                        shell=True
+                    )
+            elif title:
                 Popen(
                     f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
-                    shell=True,
+                    shell=True
                 )
             await asyncio.sleep(1)
 
