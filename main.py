@@ -21,7 +21,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.5"
+v = "v2.1.5H1"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -768,28 +768,28 @@ class Main(discord.Client):
                     )
                     await self.tofu_react_add(reaction, "❓")
         if re.search(
-                f"(<@{str(self.user.id)} grabbed .* )|(<@{str(self.user.id)}> fought off .* )",
-                message.content,
+                f"<@{str(self.user.id)}> grabbed .* |<@{str(self.user.id)}> fought off .* ",
+                message.content
         ):
             a = re.search(
-                f"<@{str(self.user.id)}> .*:(.*):.*#(.*) ·.*· (.*)",
+                f"<@{str(self.user.id)}> .*:(.*):.*#(.*) · (.*) · (.*)",
                 message.content,
             )
             self.tofutimer += 540
             self.missed -= 1
             self.collected += 1
             tprint(
-                f"{Fore.BLUE}[Tofu] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(3)} | Print #{a.group(2)} | "
+                f"{Fore.BLUE}[Tofu] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(4)} from {a.group(3)} | Print #{a.group(2)} | "
                 f"Condition: {a.group(1)}{Fore.RESET} "
             )
             if logcollection:
                 with open("log.txt", "a") as ff:
                     if timestamp:
                         ff.write(
-                            f"{current_time()} - Tofu Card: {a.group(3)} - {self.tofuurl}\n"
+                            f"{current_time()} - Tofu Card: {a.group(4)} from {a.group(3)} - {self.tofuurl}\n"
                         )
                     else:
-                        ff.write(f"Tofu Card: {a.group(3)} - {self.tofuurl}\n")
+                        ff.write(f"Tofu Card: {a.group(4)} from {a.group(3)}- {self.tofuurl}\n")
 
     async def react_add(self, reaction, emoji):
         reaction, _ = reaction
