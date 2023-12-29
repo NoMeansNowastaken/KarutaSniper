@@ -5,7 +5,8 @@ import re
 
 import Levenshtein
 from Crypto.Cipher import AES
-from win32crypt import CryptUnprotectData
+if os.name == "nt":
+    from win32crypt import CryptUnprotectData
 
 
 def isSomething(inp, list_of_interested, accuracy):

@@ -21,7 +21,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.5H1"
+v = "v2.1.5H2"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -772,7 +772,7 @@ class Main(discord.Client):
                 message.content
         ):
             a = re.search(
-                f"<@{str(self.user.id)}> .*:(.*):.*#(.*) · (.*) · (.*)",
+                f"<@{str(self.user.id)}> .*:(.*):.*#(.*)` · (.*) · \*\*(.*)\*\*",
                 message.content,
             )
             self.tofutimer += 540
