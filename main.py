@@ -764,17 +764,31 @@ class Main(discord.Client):
                     await self.tofuafterclick()
                 else:
                     reaction = await self.wait_for(
-                        "reaction_add", check=check
-                    )
+                        "reaction_add", check=check)
                     await self.tofu_react_add(reaction, "❓")
         if re.search(
+                f"<@{str(self.user.id)}> grabbed a \*\*Fusion",
+                message.content):
+            self.tofutimer += 540
+            self.missed -= 1
+            self.collected += 1
+            tprint(
+                f"{Fore.BLUE}[Tofu] Obtained Fusion Token{Fore.RESET}"
+            )
+            if logcollection:
+                with open("log.txt", "a") as ff:
+                    if timestamp:
+                        ff.write(
+                            f"{current_time()} - Fusion Token - {self.tofuurl}\n"
+                        )
+                    else:
+                        ff.write(f"Fusion Token - {self.tofuurl}\n")
+        elif re.search(
                 f"<@{str(self.user.id)}> grabbed .* |<@{str(self.user.id)}> fought off .* ",
-                message.content
-        ):
+                message.content):
             a = re.search(
                 f"<@{str(self.user.id)}> .*:(.*):.*#(.*)` · (.*) · \*\*(.*)\*\*",
-                message.content,
-            )
+                message.content,)
             self.tofutimer += 540
             self.missed -= 1
             self.collected += 1
@@ -795,7 +809,7 @@ class Main(discord.Client):
         reaction, _ = reaction
         try:
             dprint(f"{Fore.BLUE}Attempting to react")
-            await asyncio.sleep(random.uniform(0.25, 0.97))
+            await asyncio.sleep(random.uniform(0.55, 1.08))
             await reaction.message.add_reaction(emoji)
         except discord.errors.Forbidden as oopsie:
             dprint(f"{Fore.RED}Fuck:\n{oopsie}")
@@ -823,14 +837,17 @@ class Main(discord.Client):
 
     async def cooldown(self):
         while True:
+            await asyncio.sleep(1)
             if self.timer > 0:
                 self.timer -= 1
-                if self.tofutimer > 0 and title:
-                    Popen(
-                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                        f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
-                        shell=True
-                    )
+                if self.tofutimer > 0:
+                    self.tofutimer -= 1
+                    if title:
+                        Popen(
+                            f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                            f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
+                            shell=True
+                        )
                 elif title:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
@@ -850,7 +867,6 @@ class Main(discord.Client):
                     f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
                     shell=True
                 )
-            await asyncio.sleep(1)
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
