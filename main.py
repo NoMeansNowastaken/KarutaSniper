@@ -19,9 +19,9 @@ from lib.ocr import *
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
-tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
+tofu_match = r"(is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.5H2"
+v = "v2.1.5H4"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -193,7 +193,7 @@ class Main(discord.Client):
                     await buttons[3].click()
                     tprint("Clicked on a ribbon")
 
-        if re.search("(A wishlisted card is dropping!)", message.content):
+        if re.search("A wishlisted card is dropping!", message.content):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
 
         if re.search(match, message.content):
@@ -212,16 +212,16 @@ class Main(discord.Client):
                 for a in range(3):
                     await get_top(
                         f"{path_to_ocr}\\card{a + 1}.png",
-                        f"{path_to_ocr}\\char\\top{a + 1}.png",
+                        f"{path_to_ocr}\\char\\top{a + 1}.png"
                     )
                     await get_bottom(
                         f"{path_to_ocr}\\card{a + 1}.png",
-                        f"{path_to_ocr}\\char\\bottom{a + 1}.png",
+                        f"{path_to_ocr}\\char\\bottom{a + 1}.png"
                     )
                     if cprint:
                         await get_print(
                             f"{path_to_ocr}\\card{a + 1}.png",
-                            f"{path_to_ocr}\\char\\print{a + 1}.png",
+                            f"{path_to_ocr}\\char\\print{a + 1}.png"
                         )
             else:
                 self.cardnum = 4
@@ -233,16 +233,16 @@ class Main(discord.Client):
                 for a in range(4):
                     await get_top(
                         f"{path_to_ocr}\\card{a + 1}.png",
-                        f"{path_to_ocr}\\char\\top{a + 1}.png",
+                        f"{path_to_ocr}\\char\\top{a + 1}.png"
                     )
                     await get_bottom(
                         f"{path_to_ocr}\\card{a + 1}.png",
-                        f"{path_to_ocr}\\char\\bottom{a + 1}.png",
+                        f"{path_to_ocr}\\char\\bottom{a + 1}.png"
                     )
                     if cprint:
                         await get_print(
                             f"{path_to_ocr}\\card{a + 1}.png",
-                            f"{path_to_ocr}\\char\\print{a + 1}.png",
+                            f"{path_to_ocr}\\char\\print{a + 1}.png"
                         )
 
             onlyfiles = [
@@ -267,7 +267,7 @@ class Main(discord.Client):
                             + ".png"
                         ),
                         lang="eng",
-                        config=custom_config,
+                        config=custom_config
                     )
                     .strip()
                     .replace("\n", " ")
@@ -281,7 +281,7 @@ class Main(discord.Client):
                             + ".png"
                         ),
                         lang="eng",
-                        config=custom_config,
+                        config=custom_config
                     )
                     .strip()
                     .replace("\n", " ")
@@ -426,7 +426,7 @@ class Main(discord.Client):
                     coolthing = pytesseract.image_to_string(
                         Image.open(path_to_ocr + f"\\char\\{img}"),
                         lang="eng",
-                        config=custom_config,
+                        config=custom_config
                     ).strip()
                     if coolthing == "":
                         return
@@ -504,11 +504,11 @@ class Main(discord.Client):
                                 await self.react_add(reaction, "4️⃣")
         if re.search(
                 f"<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!",
-                message.content,
+                message.content
         ):
             a = re.search(
                 f"<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!",
-                message.content,
+                message.content
             )
             self.timer += 540
             self.missed -= 1
@@ -546,16 +546,16 @@ class Main(discord.Client):
                 for a in range(2):
                     await tofu_get_top(
                         f"{path_to_ocr}\\tofu\\card{a + 1}.png",
-                        f"{path_to_ocr}\\tofu\\char\\top{a + 1}.png",
+                        f"{path_to_ocr}\\tofu\\char\\top{a + 1}.png"
                     )
                     await tofu_get_bottom(
                         f"{path_to_ocr}\\tofu\\card{a + 1}.png",
-                        f"{path_to_ocr}\\tofu\\char\\bottom{a + 1}.png",
+                        f"{path_to_ocr}\\tofu\\char\\bottom{a + 1}.png"
                     )
                     if tofu_cprint:
                         await get_print(
                             f"{path_to_ocr}\\tofu\\card{a + 1}.png",
-                            f"{path_to_ocr}\\tofu\\char\\print{a + 1}.png",
+                            f"{path_to_ocr}\\tofu\\char\\print{a + 1}.png"
                         )
 
             onlyfiles = [
@@ -564,8 +564,7 @@ class Main(discord.Client):
             custom_config = (
                 r"--psm 6 --oem 3 -c "
                 r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-                r'@&0123456789/:- " '
-            )
+                r'@&0123456789/:- " ')
 
             def check(reaction, user):
                 return reaction.message.id == message.id
@@ -591,7 +590,7 @@ class Main(discord.Client):
                             + ".png"
                         ),
                         lang="eng",
-                        config=custom_config,
+                        config=custom_config
                     )
                     .strip()
                     .replace("\n", " ")
@@ -605,7 +604,7 @@ class Main(discord.Client):
                             + ".png"
                         ),
                         lang="eng",
-                        config=custom_config,
+                        config=custom_config
                     )
                     .strip()
                     .replace("\n", " ")
@@ -628,8 +627,7 @@ class Main(discord.Client):
                             with open("log.txt", "a") as ff:
                                 if timestamp:
                                     ff.write(
-                                        f"{current_time()} - Tofu Character: {charchar} - {self.url}\n"
-                                    )
+                                        f"{current_time()} - Tofu Character: {charchar} - {self.url}\n")
                                 else:
                                     ff.write(f"Tofu Character: {charchar} - {self.url}\n")
                         if img == "top1.png":
@@ -639,8 +637,7 @@ class Main(discord.Client):
                                 await self.afterclick()
                             else:
                                 reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
+                                    "reaction_add", check=check)
                                 await self.tofu_react_add(reaction, "1️⃣")
                         elif img == "top2.png":
                             if isbutton(cid):
@@ -671,8 +668,7 @@ class Main(discord.Client):
                             with open("log.txt", "a") as ff:
                                 if timestamp:
                                     ff.write(
-                                        f"{current_time()} - Tofu Anime: {char} - {self.tofuurl}\n"
-                                    )
+                                        f"{current_time()} - Tofu Anime: {char} - {self.tofuurl}\n")
                                 else:
                                     ff.write(f"Tofu Anime: {char} - {self.tofuurl}\n")
                         if img == "bottom1.png":
@@ -682,8 +678,7 @@ class Main(discord.Client):
                                 await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
+                                    "reaction_add", check=check)
                                 await self.tofu_react_add(reaction, "1️⃣")
                         elif img == "bottom2.png":
                             if isbutton(cid):
@@ -692,17 +687,15 @@ class Main(discord.Client):
                                 await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
+                                    "reaction_add", check=check)
                                 await self.tofu_react_add(reaction, "2️⃣")
                 if cprint and "print" in img:
                     custom_config = (
-                        r'--psm 8 --oem 3 -c tessedit_char_whitelist="0123456789"'
-                    )
+                        r'--psm 8 --oem 3 -c tessedit_char_whitelist="0123456789"')
                     coolthing = pytesseract.image_to_string(
                         Image.open(path_to_ocr + f"\\char\\{img}"),
                         lang="eng",
-                        config=custom_config,
+                        config=custom_config
                     ).strip()
                     if coolthing == "":
                         return
@@ -718,8 +711,7 @@ class Main(discord.Client):
                             and charchar not in self.charblacklist
                     ):
                         tprint(
-                            f"{Fore.GREEN}[Tofu] Found Print # {Fore.MAGENTA}{num}{Fore.RESET}"
-                        )
+                            f"{Fore.GREEN}[Tofu] Found Print # {Fore.MAGENTA}{num}{Fore.RESET}")
                         cid = message.channel.id
                         self.tofu_current_card = charchar
                         self.tofureact = True
@@ -732,8 +724,7 @@ class Main(discord.Client):
                                     )
                                 else:
                                     ff.write(
-                                        f"Tofu Print Number: {coolthing} - {self.tofuurl}\n"
-                                    )
+                                        f"Tofu Print Number: {coolthing} - {self.tofuurl}\n")
                         if img == "print1.png":
                             if isbutton(cid):
                                 await self.wait_for("message_edit", check=mcheck)
@@ -741,8 +732,7 @@ class Main(discord.Client):
                                 await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
+                                    "reaction_add", check=check)
                                 await self.tofu_react_add(reaction, "1️⃣")
                         elif img == "print2.png":
                             if isbutton(cid):
@@ -751,8 +741,7 @@ class Main(discord.Client):
                                 await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
+                                    "reaction_add", check=check)
                                 await self.tofu_react_add(reaction, "2️⃣")
             if cool.group(2) == str(self.user.id) and grandom and not self.tofureact:
                 self.tofureact = True
@@ -788,14 +777,13 @@ class Main(discord.Client):
                 message.content):
             a = re.search(
                 f"<@{str(self.user.id)}> .*:(.*):.*#(.*)` · (.*) · \*\*(.*)\*\*",
-                message.content,)
+                message.content)
             self.tofutimer += 540
             self.missed -= 1
             self.collected += 1
             tprint(
                 f"{Fore.BLUE}[Tofu] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(4)} from {a.group(3)} | Print #{a.group(2)} | "
-                f"Condition: {a.group(1)}{Fore.RESET} "
-            )
+                f"Condition: {a.group(1)}{Fore.RESET} ")
             if logcollection:
                 with open("log.txt", "a") as ff:
                     if timestamp:
@@ -846,27 +834,23 @@ class Main(discord.Client):
                         Popen(
                             f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
                             f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
-                            shell=True
-                        )
+                            shell=True)
                 elif title:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
                         f"cooldown for {self.timer} seconds",
-                        shell=True
-                    )
+                        shell=True)
             elif self.tofutimer > 0:
                 self.tofutimer -= 1
                 if title:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Tof"
                         f"u on cooldown for {self.tofutimer} seconds",
-                        shell=True
-                    )
+                        shell=True)
             elif title:
                 Popen(
                     f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
-                    shell=True
-                )
+                    shell=True)
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -881,8 +865,8 @@ class Main(discord.Client):
         with open("keywords\\charblacklist.txt") as ff:
             self.charblacklist = ff.read().splitlines()
         tprint(
-            f"{Fore.MAGENTA}Loaded {len(self.animes)} animes, {len(self.aniblacklist)} blacklisted animes, {len(self.chars)} characters, {len(self.charblacklist)} blacklisted characters"
-        )
+            f"{Fore.MAGENTA}Loaded {len(self.animes)} animes, {len(self.aniblacklist)} blacklisted animes, "
+            f"{len(self.chars)} characters, {len(self.charblacklist)} blacklisted characters")
 
     async def filewatch(self, path):
         bruh = api.FileWatch(path)
@@ -938,19 +922,15 @@ class Main(discord.Client):
                         await asyncio.sleep(12 * 3600 + 5)  # 12 hours
 
     async def autofindresource(self):
-        channel = self.get_channel(
-            resourcechannel
-        )  # your work/auto check for resource channel
+        channel = self.get_channel(resourcechannel)  # your work/auto check for resource channel
         async with channel.typing():
             await asyncio.sleep(random.uniform(0.2, 1))
         await channel.send("kn")
         reply = await client.wait_for(
-            "message", check=lambda m: m.author.id == 646937666251915264
-        )
+            "message", check=lambda m: m.author.id == 646937666251915264)
         a = re.compile(
             "`(\w+)` · \*\*(\d+)%\*\* tax · \*\*(\d+)(%\*\* power · \*\*(\d+)|\*)",
-            re.MULTILINE,
-        ).findall(reply.embeds[0].to_dict()["description"].replace(",", ""))
+            re.MULTILINE).findall(reply.embeds[0].to_dict()["description"].replace(",", ""))
         top = 0
         material = None
         for interest in a:
