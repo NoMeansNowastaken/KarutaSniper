@@ -109,7 +109,7 @@ I wont explain features that explain themselves
 
 ## TODO
 
-- support for bots similar to karuta (like SOFI); this might never happen/take a long time to be implemented
+- support for bots similar to karuta (like SOFI, Mudae, ~~Tofu~~); this might never happen/take a long time to be implemented
 - improve stuff/fix code
 - improve print numbers
 - first run setup

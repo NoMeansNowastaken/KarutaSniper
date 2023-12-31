@@ -21,7 +21,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.5H4"
+v = "v2.1.5H5"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -540,23 +540,19 @@ class Main(discord.Client):
             if filelength("temp\\tofu\\card.webp") == 940:
                 for a in range(2):
                     await tofu_get_card(
-                        f"{path_to_ocr}\\tofu\\card{a + 1}.png", "temp\\tofu\\card.webp", a
-                    )
+                        f"{path_to_ocr}\\tofu\\card{a + 1}.png", "temp\\tofu\\card.webp", a)
 
                 for a in range(2):
                     await tofu_get_top(
                         f"{path_to_ocr}\\tofu\\card{a + 1}.png",
-                        f"{path_to_ocr}\\tofu\\char\\top{a + 1}.png"
-                    )
+                        f"{path_to_ocr}\\tofu\\char\\top{a + 1}.png")
                     await tofu_get_bottom(
                         f"{path_to_ocr}\\tofu\\card{a + 1}.png",
-                        f"{path_to_ocr}\\tofu\\char\\bottom{a + 1}.png"
-                    )
+                        f"{path_to_ocr}\\tofu\\char\\bottom{a + 1}.png")
                     if tofu_cprint:
                         await get_print(
                             f"{path_to_ocr}\\tofu\\card{a + 1}.png",
-                            f"{path_to_ocr}\\tofu\\char\\print{a + 1}.png"
-                        )
+                            f"{path_to_ocr}\\tofu\\char\\print{a + 1}.png")
 
             onlyfiles = [
                 ff for ff in listdir("temp\\tofu\\char") if isfile(join("temp\\tofu\\char", ff))
@@ -752,6 +748,7 @@ class Main(discord.Client):
                     await self.tofubuttons[3].click()
                     await self.tofuafterclick()
                 else:
+                    self.missed += 1
                     reaction = await self.wait_for(
                         "reaction_add", check=check)
                     await self.tofu_react_add(reaction, "❓")
@@ -828,25 +825,27 @@ class Main(discord.Client):
             await asyncio.sleep(1)
             if self.timer > 0:
                 self.timer -= 1
-                if self.tofutimer > 0:
-                    self.tofutimer -= 1
-                    if title:
-                        Popen(
-                            f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                            f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
-                            shell=True)
+                if tofu_enabled:
+                    if self.tofutimer > 0:
+                        self.tofutimer -= 1
+                        if title:
+                            Popen(
+                                f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                                f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
+                                shell=True)
                 elif title:
                     Popen(
                         f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
                         f"cooldown for {self.timer} seconds",
                         shell=True)
-            elif self.tofutimer > 0:
-                self.tofutimer -= 1
-                if title:
-                    Popen(
-                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Tof"
-                        f"u on cooldown for {self.tofutimer} seconds",
-                        shell=True)
+            elif tofu_enabled:
+                if self.tofutimer > 0:
+                    self.tofutimer -= 1
+                    if title:
+                        Popen(
+                            f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Tof"
+                            f"u on cooldown for {self.tofutimer} seconds",
+                            shell=True)
             elif title:
                 Popen(
                     f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
