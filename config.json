@@ -18,8 +18,9 @@
   "randmin": 69,
   "randmax": 420,
   "debug": false,
+  "very_verbose": false,
   "check_print": true,
-  "print_number": 100,
+  "print_number": 1000,
   "christmas": true,
   "tofu": {
     "enabled": true,
@@ -27,12 +28,13 @@
       858004885809922078,
       857978372688445481
     ],
-    "summon": false,
+    "summon": true,
     "summon_channel": 858004885809922078,
-    "check_print": false,
+    "check_print": true,
     "grab_random": true,
     "dropdelay": 1269,
     "randmin": 69,
-    "randmax": 420
+    "randmax": 420,
+    "tcc": "--psm 6 --oem 3 --user-words '\\lib\\characters.txt' -c tessedit_char_whitelist='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@&0123456789/:'"
   }
 }

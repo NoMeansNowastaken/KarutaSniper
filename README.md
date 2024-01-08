@@ -72,8 +72,7 @@ I wont explain features that explain themselves
 
 - well i merged the wrong way so update ig
 
-
-### v2.1
+## v2.1
 
 - aniblacklist also now works with character hits and vice versa
 - blacklist now follows accuracy setting as well
@@ -107,13 +106,18 @@ I wont explain features that explain themselves
 - improvements for non windows platforms
 - bug fixes
 
+## v2.2
+
+- rewrote a bunch of stuff so shit prolly gonna break
+- bug fixes
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI, Mudae, ~~Tofu~~); this might never happen/take a long time to be implemented
-- improve stuff/fix code
 - improve print numbers
+- improve ocr
+- make it less buggy (especially tofu)
 - first run setup
-- improve highly redundant code
 
 ## Credits
 

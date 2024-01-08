@@ -1,13 +1,12 @@
 import asyncio
 import json
+import os
 import random
 import re
 import sys
 from datetime import datetime
-import os
 from os import listdir, get_terminal_size
 from os.path import isfile, join
-from subprocess import Popen
 
 import discord
 import pytesseract
@@ -21,7 +20,7 @@ init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 tofu_match = r"(is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.1.5H5"
+v = "v2.2"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -50,6 +49,7 @@ cprint = config["check_print"]
 autofarm = config["autofarm"]
 christmas = config["christmas"]
 tofu_enabled = config["tofu"]["enabled"]
+verbose = config["very_verbose"]
 if autofarm:
     resourcechannel = config["resourcechannel"]
 if cprint:
@@ -63,6 +63,7 @@ if tofu_enabled:
     tofu_config = config["tofu"]
     tofu_channels = tofu_config["channels"]
     shouldsummon = tofu_config["summon"]
+    tcc = tofu_config["tcc"]
     if shouldsummon:
         summonchannel = tofu_config["summon_channel"]
         tofu_delay = tofu_config["dropdelay"]
@@ -82,27 +83,27 @@ class Main(discord.Client):
         self.messageid = None
         self.current_card = None
         self.ready = False
-        self.react = False
         self.timer = 0
         self.url = None
         self.missed = 0
         self.collected = 0
         self.cardnum = 0
         self.buttons = None
+        self.tofutimer = 0
         if tofu_enabled:
-            self.tofutimer = 0
             self.tofu_current_card = None
             self.tofureact = False
             self.tofuurl = None
             self.tofubuttons = None
+            self.tcc = tcc
         if autofarm:
             self.button = None
 
     async def on_ready(self):
         if title:
-            Popen("cls", shell=True)
+            await asyncio.create_subprocess_shell("cls")
         else:
-            Popen("clear", shell=True)
+            await asyncio.create_subprocess_shell("clear")
         await asyncio.sleep(0.5)
         thing = f"""{Fore.LIGHTMAGENTA_EX}
  ____  __.                    __             _________      .__                     
@@ -138,6 +139,9 @@ class Main(discord.Client):
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
         asyncio.get_event_loop().create_task(
             self.filewatch("keywords\\aniblacklist.txt")
+        )
+        asyncio.get_event_loop().create_task(
+            self.configwatch("config.json")
         )
         asyncio.get_event_loop().create_task(
             self.filewatch("keywords\\charblacklist.txt")
@@ -248,261 +252,169 @@ class Main(discord.Client):
             onlyfiles = [
                 ff for ff in listdir("temp\\char") if isfile(join("temp\\char", ff))
             ]
-            # print("File trovati: ", onlyfiles)
-            custom_config = (
-                r"--psm 6 --oem 3 -c "
-                r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-                r'@&0123456789/:- " '
-            )
-
+            charlist = []
+            anilist = []
+            printlist = []
             for img in onlyfiles:
                 if "4" in img and self.cardnum != 4:
                     continue
-                charchar = (
-                    pytesseract.image_to_string(
-                        Image.open(
-                            path_to_ocr
-                            + "\\char\\top"
-                            + re.sub(r"\D", "", img)
-                            + ".png"
-                        ),
-                        lang="eng",
-                        config=custom_config
-                    )
-                    .strip()
-                    .replace("\n", " ")
-                )
-                char = (
-                    pytesseract.image_to_string(
-                        Image.open(
-                            path_to_ocr
-                            + "\\char\\bottom"
-                            + re.sub(r"\D", "", img)
-                            + ".png"
-                        ),
-                        lang="eng",
-                        config=custom_config
-                    )
-                    .strip()
-                    .replace("\n", " ")
-                )
-                for a in self.chars:
-                    if "top" not in img:
-                        break
-                    if (
-                            api.isSomething(charchar, a, accuracy)
-                            and not api.isSomething(charchar, self.charblacklist, accuracy)
-                            and not api.isSomething(char, self.aniblacklist, blaccuracy)
-                    ):
-                        tprint(
-                            f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{charchar} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{char}{Fore.RESET}"
-                        )
-                        self.current_card = charchar
-                        self.react = True
-                        self.url = message.attachments[0].url
-                        if loghits:
-                            with open("log.txt", "a") as ff:
-                                if timestamp:
-                                    ff.write(
-                                        f"{current_time()} - Character: {charchar} - {self.url}\n"
-                                    )
-                                else:
-                                    ff.write(f"Character: {charchar} - {self.url}\n")
-                        if img == "top1.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[0].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "1️⃣")
-                        elif img == "top2.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[1].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "2️⃣")
-                        elif img == "top3.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[2].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "3️⃣")
-                        elif img == "top4.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[3].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "4️⃣")
-                for a in self.animes:  # TODO: fix this shit its so poorly coded no need to read anime titles twice
-                    if "bottom" not in img:
-                        break
-                    if (
-                            api.isSomething(char, a, accuracy)
-                            and not api.isSomething(charchar, self.charblacklist, accuracy)
-                            and not api.isSomething(char, self.aniblacklist, accuracy)
-                    ):
-                        tprint(
-                            f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{char} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charchar}{Fore.RESET} "
-                        )
-                        cid = message.channel.id
-                        self.current_card = char
-                        self.react = True
-                        self.url = message.attachments[0].url
-                        if loghits:
-                            with open("log.txt", "a") as ff:
-                                if timestamp:
-                                    ff.write(
-                                        f"{current_time()} - Anime: {char} - {self.url}\n"
-                                    )
-                                else:
-                                    ff.write(f"Anime: {char} - {self.url}\n")
-                        if img == "bottom1.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[0].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "1️⃣")
-                        elif img == "bottom2.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[1].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "2️⃣")
-                        elif img == "bottom3.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[2].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "3️⃣")
-                        elif img == "bottom4.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[3].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "4️⃣")
-                if cprint and "print" in img:
+                if "top" in img:
                     custom_config = (
-                        r'--psm 8 --oem 3 -c tessedit_char_whitelist="0123456789"'
+                        r"--psm 6 --oem 3 -c "
+                        r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+                        r'@&0123456789/:- " '
                     )
-                    coolthing = pytesseract.image_to_string(
-                        Image.open(path_to_ocr + f"\\char\\{img}"),
-                        lang="eng",
-                        config=custom_config
-                    ).strip()
-                    if coolthing == "":
-                        return
+                    charlist.append(
+                        pytesseract.image_to_string(
+                            Image.open(
+                                path_to_ocr
+                                + "\\char\\top"
+                                + re.sub(r"\D", "", img)
+                                + ".png"
+                            ),
+                            lang="eng",
+                            config=custom_config
+                        )
+                        .strip()
+                        .replace("\n", " ")
+                    )
+                elif "bottom" in img:
+                    custom_config = (
+                        r"--psm 6 --oem 3 -c "
+                        r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+                        r'@&0123456789/:- " '
+                    )
+                    anilist.append(
+                        pytesseract.image_to_string(
+                            Image.open(
+                                path_to_ocr
+                                + "\\char\\bottom"
+                                + re.sub(r"\D", "", img)
+                                + ".png"
+                            ),
+                            lang="eng",
+                            config=custom_config
+                        )
+                        .strip()
+                        .replace("\n", " ")
+                    )
+                elif cprint and "print" in img:
+                    custom_config = (
+                        r'--psm 7 --oem 3 -c tessedit_char_whitelist="0123456789 "'
+                    )
+                    printlist.append(
+                        pytesseract.image_to_string(
+                            Image.open(path_to_ocr + f"\\char\\{img}"),
+                            lang="eng",
+                            config=custom_config
+                        ).strip()
+                    )
+            vprint(f"Anilist: {anilist}")
+            vprint(f"Charlist: {charlist}")
+            vprint(f"Printlist: {printlist}")
+
+            def emoji(i):
+                match i:
+                    case 0:
+                        return "1️⃣"
+                    case 1:
+                        return "2️⃣"
+                    case 2:
+                        return "3️⃣"
+                    case 3:
+                        return "4️⃣"
+
+            for i, character in enumerate(charlist):
+                if (
+                        api.isSomething(character, self.chars, accuracy)
+                        and not api.isSomething(character, self.charblacklist, accuracy)
+                        and not api.isSomething(anilist[i], self.aniblacklist, blaccuracy)
+                ):
+                    tprint(
+                        f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
+                    )
+                    self.url = message.attachments[0].url
+                    if loghits:
+                        with open("log.txt", "a") as ff:
+                            if timestamp:
+                                ff.write(
+                                    f"{current_time()} - Character: {character} - {self.url}\n"
+                                )
+                            else:
+                                ff.write(f"Character: {character} - {self.url}\n")
+                    if isbutton(cid):
+                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                        await self.wait_for("message_edit", check=mcheck)
+                        await self.buttons[i].click()
+                        await self.afterclick()
+                    else:
+                        reaction = await self.wait_for(
+                            "reaction_add", check=check
+                        )
+                        await self.react_add(reaction, emoji(i))
+            for i, anime in enumerate(anilist):
+                if (
+                        api.isSomething(anime, self.animes, accuracy)
+                        and not api.isSomething(charlist[i], self.charblacklist, accuracy)
+                        and not api.isSomething(anime, self.aniblacklist, blaccuracy)
+                ):
+                    tprint(
+                        f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{anime} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charlist[i]}{Fore.RESET}"
+                    )
+                    self.url = message.attachments[0].url
+                    if loghits:
+                        with open("log.txt", "a") as ff:
+                            if timestamp:
+                                ff.write(
+                                    f"{current_time()} - Anime: {anime} - {self.url}\n"
+                                )
+                            else:
+                                ff.write(f"Anime: {anime} - {self.url}\n")
+                    if isbutton(cid):
+                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                        await self.wait_for("message_edit", check=mcheck)
+                        await self.buttons[i].click()
+                        await self.afterclick()
+                    else:
+                        reaction = await self.wait_for(
+                            "reaction_add", check=check
+                        )
+                        await self.react_add(reaction, emoji(i))
+            if cprint:
+                for i, prin in enumerate(printlist):
                     try:
-                        num = int(re.sub("\D", "", re.sub("-.*\d|-", "", coolthing)))
+                        prin = int(re.sub(" \d$| ", "", prin))
                     except ValueError:
-                        num = 999999
-                        dprint(f"ValueError - current string: {coolthing}")
-                    # dprint(char + " - " + str(num))
+                        prin = 999999
+                        dprint(f"ValueError - current string: {prin}")
                     if (
-                            num <= pn
-                            and char not in self.aniblacklist
-                            and charchar not in self.charblacklist
+                            prin <= pn
+                            and anilist[i] not in self.aniblacklist
+                            and charlist[i] not in self.charblacklist
                     ):
                         tprint(
-                            f"{Fore.GREEN}Found Print # {Fore.MAGENTA}{num}{Fore.RESET}"
+                            f"{Fore.GREEN}Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
                         )
-                        cid = message.channel.id
-                        self.current_card = charchar
-                        self.react = True
                         self.url = message.attachments[0].url
                         if loghits:
                             with open("log.txt", "a") as ff:
                                 if timestamp:
                                     ff.write(
-                                        f"{current_time()} - Print Number: {coolthing} - {self.url}\n"
+                                        f"{current_time()} - Print Number {prin} - {self.url}\n"
                                     )
                                 else:
-                                    ff.write(
-                                        f"Print Number: {coolthing} - {self.url}\n"
-                                    )
-                        if img == "print1.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[0].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "1️⃣")
-                        elif img == "print2.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[1]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[1].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "2️⃣")
-                        elif img == "print3.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[2]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[2].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "3️⃣")
-                        elif img == "print4.png":
-                            if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[3]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[3].click()
-                                await self.afterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check
-                                )
-                                await self.react_add(reaction, "4️⃣")
-        if re.search(
+                                    ff.write(f"Print Number {prin} - {self.url}\n")
+                        if isbutton(cid):
+                            # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                            await self.wait_for("message_edit", check=mcheck)
+                            await self.buttons[i].click()
+                            await self.afterclick()
+                        else:
+                            reaction = await self.wait_for(
+                                "reaction_add", check=check
+                            )
+                            await self.react_add(reaction, emoji(i))
+        elif re.search(
                 f"<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!",
                 message.content
         ):
@@ -550,18 +462,16 @@ class Main(discord.Client):
                         f"{path_to_ocr}\\tofu\\card{a + 1}.png",
                         f"{path_to_ocr}\\tofu\\char\\bottom{a + 1}.png")
                     if tofu_cprint:
-                        await get_print(
+                        await tofu_get_print(
                             f"{path_to_ocr}\\tofu\\card{a + 1}.png",
                             f"{path_to_ocr}\\tofu\\char\\print{a + 1}.png")
 
             onlyfiles = [
                 ff for ff in listdir("temp\\tofu\\char") if isfile(join("temp\\tofu\\char", ff))
             ]
-            custom_config = (
-                r"--psm 6 --oem 3 -c "
-                r'tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-                r'@&0123456789/:- " ')
-
+            anilist = []
+            charlist = []
+            printlist = []
             def check(reaction, user):
                 return reaction.message.id == message.id
 
@@ -577,168 +487,153 @@ class Main(discord.Client):
                     return False
 
             for img in onlyfiles:
-                charchar = (
-                    pytesseract.image_to_string(
-                        Image.open(
-                            path_to_ocr
-                            + "\\tofu\\char\\top"
-                            + re.sub(r"\D", "", img)
-                            + ".png"
-                        ),
-                        lang="eng",
-                        config=custom_config
-                    )
-                    .strip()
-                    .replace("\n", " ")
-                )
-                char = (
-                    pytesseract.image_to_string(
-                        Image.open(
-                            path_to_ocr
-                            + "\\tofu\\char\\bottom"
-                            + re.sub(r"\D", "", img)
-                            + ".png"
-                        ),
-                        lang="eng",
-                        config=custom_config
-                    )
-                    .strip()
-                    .replace("\n", " ")
-                )
-                for a in self.chars:
-                    if "top" not in img:
-                        break
-                    if (
-                            api.isSomething(charchar, a, accuracy)
-                            and not api.isSomething(charchar, self.charblacklist, accuracy)
-                            and not api.isSomething(char, self.aniblacklist, blaccuracy)
-                    ):
-                        tprint(
-                            f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{charchar} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{char}{Fore.RESET}"
+                if "top" in img:
+                    charlist.append(
+                        pytesseract.image_to_string(
+                            Image.open(
+                                path_to_ocr
+                                + "\\tofu\\char\\top"
+                                + re.sub(r"\D", "", img)
+                                + ".png"
+                            ),
+                            lang="eng",
+                            config=self.tcc
                         )
-                        self.tofu_current_card = charchar
-                        self.tofureact = True
-                        self.tofuurl = message.attachments[0].url
-                        if loghits:
-                            with open("log.txt", "a") as ff:
-                                if timestamp:
-                                    ff.write(
-                                        f"{current_time()} - Tofu Character: {charchar} - {self.url}\n")
-                                else:
-                                    ff.write(f"Tofu Character: {charchar} - {self.url}\n")
-                        if img == "top1.png":
-                            if isbutton(cid):
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.tofubuttons[0].click()
-                                await self.afterclick()
+                        .strip()
+                        .replace("\n", " ")
+                    )
+                elif "bottom" in img:
+                    anilist.append(
+                        pytesseract.image_to_string(
+                            Image.open(
+                                path_to_ocr
+                                + "\\tofu\\char\\bottom"
+                                + re.sub(r"\D", "", img)
+                                + ".png"
+                            ),
+                            lang="eng",
+                            config=self.tcc
+                        )
+                        .strip()
+                        .replace("\n", " ")
+                    )
+                elif tofu_cprint and "print" in img:
+                    custom_config = (
+                        r'--psm 8 --oem 3 -c tessedit_char_whitelist="0123456789"'
+                    )
+                    printlist.append(
+                        pytesseract.image_to_string(
+                            Image.open(path_to_ocr + f"\\tofu\\char\\{img}"),
+                            lang="eng",
+                            config=custom_config
+                        ).strip()
+                    )
+            vprint(f"Tofu Anilist: {anilist}")
+            vprint(f"Tofu Charlist: {charlist}")
+            vprint(f"Tofu Printlist: {printlist}")
+
+            def emoji(i):
+                match i:
+                    case 0:
+                        return "1️⃣"
+                    case 1:
+                        return "2️⃣"
+                    case 2:
+                        return "3️⃣"
+                    case 3:
+                        return "4️⃣"
+
+            for i, character in enumerate(charlist):
+                if (
+                        api.isSomething(character, self.chars, accuracy)
+                        and not api.isSomething(character, self.charblacklist, accuracy)
+                        and not api.isSomething(anilist[i], self.aniblacklist, blaccuracy)
+                ):
+                    tprint(
+                        f"{Fore.GREEN}[Tofu] Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
+                    )
+                    self.tofuurl = message.attachments[0].url
+                    if loghits:
+                        with open("log.txt", "a") as ff:
+                            if timestamp:
+                                ff.write(
+                                    f"{current_time()} - [Tofu] Character: {character} - {self.url}\n"
+                                )
                             else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check)
-                                await self.tofu_react_add(reaction, "1️⃣")
-                        elif img == "top2.png":
+                                ff.write(f"[Tofu] Character: {character} - {self.url}\n")
+                    if isbutton(cid):
+                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                        await self.wait_for("message_edit", check=mcheck)
+                        await self.buttons[i].click()
+                        await self.tofuafterclick()
+                    else:
+                        reaction = await self.wait_for(
+                            "reaction_add", check=check
+                        )
+                        await self.tofu_react_add(reaction, emoji(i))
+            for i, anime in enumerate(anilist):
+                if (
+                        api.isSomething(anime, self.animes, accuracy)
+                        and not api.isSomething(charlist[i], self.charblacklist, accuracy)
+                        and not api.isSomething(anime, self.aniblacklist, blaccuracy)
+                ):
+                    tprint(
+                        f"{Fore.GREEN}[Tofu] Found Anime: {Fore.MAGENTA}{anime} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charlist[i]}{Fore.RESET}"
+                    )
+                    self.url = message.attachments[0].url
+                    if loghits:
+                        with open("log.txt", "a") as ff:
+                            if timestamp:
+                                ff.write(
+                                    f"{current_time()} - [Tofu] Anime: {anime} - {self.url}\n"
+                                )
+                            else:
+                                ff.write(f"[Tofu] Anime: {anime} - {self.url}\n")
+                    if isbutton(cid):
+                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
+                        await self.wait_for("message_edit", check=mcheck)
+                        await self.buttons[i].click()
+                        await self.tofuafterclick()
+                    else:
+                        reaction = await self.wait_for(
+                            "reaction_add", check=check
+                        )
+                        await self.tofu_react_add(reaction, emoji(i))
+                if tofu_cprint:
+                    for i, prin in enumerate(printlist):
+                        try:
+                            prin = int(prin)
+                        except ValueError:
+                            if prin != "":
+                                dprint(f"[Tofu] ValueError - current string: {prin}")
+                            prin = 999999
+                        if (
+                                prin <= pn
+                                and anilist[i] not in self.aniblacklist
+                                and charlist[i] not in self.charblacklist
+                        ):
+                            tprint(
+                                f"{Fore.GREEN}[Tofu] Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
+                            )
+                            self.tofuurl = message.attachments[0].url
+                            if loghits:
+                                with open("log.txt", "a") as ff:
+                                    if timestamp:
+                                        ff.write(
+                                            f"{current_time()} - [Tofu] Print Number {prin} - {self.url}\n"
+                                        )
+                                    else:
+                                        ff.write(f"[Tofu] Print Number {prin} - {self.url}\n")
                             if isbutton(cid):
+                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                                 await self.wait_for("message_edit", check=mcheck)
-                                await self.tofubuttons[1].click()
-                                await self.afterclick()
+                                await self.buttons[i].click()
+                                await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check
                                 )
-                                await self.tofu_react_add(reaction, "2️⃣")
-                for a in self.animes:  # TODO: fix this shit its so poorly coded no need to read anime titles twice
-                    if "bottom" not in img:
-                        break
-                    if (
-                            api.isSomething(char, a, accuracy)
-                            and not api.isSomething(charchar, self.charblacklist, accuracy)
-                            and not api.isSomething(char, self.aniblacklist, accuracy)
-                    ):
-                        tprint(
-                            f"{Fore.GREEN}[Tofu] Found Anime: {Fore.MAGENTA}{char} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charchar}{Fore.RESET}"
-                        )
-                        cid = message.channel.id
-                        self.tofu_current_card = char
-                        self.tofureact = True
-                        self.tofuurl = message.attachments[0].url
-                        if loghits:
-                            with open("log.txt", "a") as ff:
-                                if timestamp:
-                                    ff.write(
-                                        f"{current_time()} - Tofu Anime: {char} - {self.tofuurl}\n")
-                                else:
-                                    ff.write(f"Tofu Anime: {char} - {self.tofuurl}\n")
-                        if img == "bottom1.png":
-                            if isbutton(cid):
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.tofubuttons[0].click()
-                                await self.tofuafterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check)
-                                await self.tofu_react_add(reaction, "1️⃣")
-                        elif img == "bottom2.png":
-                            if isbutton(cid):
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.tofubuttons[1].click()
-                                await self.tofuafterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check)
-                                await self.tofu_react_add(reaction, "2️⃣")
-                if cprint and "print" in img:
-                    custom_config = (
-                        r'--psm 8 --oem 3 -c tessedit_char_whitelist="0123456789"')
-                    coolthing = pytesseract.image_to_string(
-                        Image.open(path_to_ocr + f"\\char\\{img}"),
-                        lang="eng",
-                        config=custom_config
-                    ).strip()
-                    if coolthing == "":
-                        return
-                    try:
-                        num = int(re.sub("\D", "", re.sub("-.*\d|-", "", coolthing)))
-                    except ValueError:
-                        num = 999999
-                        dprint(f"ValueError - current string: {coolthing}")
-                    # dprint(char + " - " + str(num))
-                    if (
-                            num <= pn
-                            and char not in self.aniblacklist
-                            and charchar not in self.charblacklist
-                    ):
-                        tprint(
-                            f"{Fore.GREEN}[Tofu] Found Print # {Fore.MAGENTA}{num}{Fore.RESET}")
-                        cid = message.channel.id
-                        self.tofu_current_card = charchar
-                        self.tofureact = True
-                        self.tofuurl = message.attachments[0].url
-                        if loghits:
-                            with open("log.txt", "a") as ff:
-                                if timestamp:
-                                    ff.write(
-                                        f"{current_time()} - Tofu Print Number: {coolthing} - {self.tofuurl}\n"
-                                    )
-                                else:
-                                    ff.write(
-                                        f"Tofu Print Number: {coolthing} - {self.tofuurl}\n")
-                        if img == "print1.png":
-                            if isbutton(cid):
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.tofubuttons[0].click()
-                                await self.tofuafterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check)
-                                await self.tofu_react_add(reaction, "1️⃣")
-                        elif img == "print2.png":
-                            if isbutton(cid):
-                                await self.wait_for("message_edit", check=mcheck)
-                                await self.tofubuttons[1].click()
-                                await self.tofuafterclick()
-                            else:
-                                reaction = await self.wait_for(
-                                    "reaction_add", check=check)
-                                await self.tofu_react_add(reaction, "2️⃣")
+                                await self.tofu_react_add(reaction, emoji(i))
             if cool.group(2) == str(self.user.id) and grandom and not self.tofureact:
                 self.tofureact = True
                 self.tofuurl = ""
@@ -752,7 +647,7 @@ class Main(discord.Client):
                     reaction = await self.wait_for(
                         "reaction_add", check=check)
                     await self.tofu_react_add(reaction, "❓")
-        if re.search(
+        elif re.search(
                 f"<@{str(self.user.id)}> grabbed a \*\*Fusion",
                 message.content):
             self.tofutimer += 540
@@ -799,11 +694,9 @@ class Main(discord.Client):
         except discord.errors.Forbidden as oopsie:
             dprint(f"{Fore.RED}Fuck:\n{oopsie}")
             return
-        if self.react:
-            self.timer += 60
-            self.missed += 1
+        self.timer += 60
+        self.missed += 1
         dprint(f"{Fore.BLUE}Reacted with {emoji} successfully{Fore.RESET}")
-        self.react = False
 
     async def tofu_react_add(self, reaction, emoji):
         reaction, _ = reaction
@@ -825,31 +718,29 @@ class Main(discord.Client):
             await asyncio.sleep(1)
             if self.timer > 0:
                 self.timer -= 1
-                if tofu_enabled:
-                    if self.tofutimer > 0:
-                        self.tofutimer -= 1
-                        if title:
-                            Popen(
-                                f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                                f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds",
-                                shell=True)
-                elif title:
-                    Popen(
-                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
-                        f"cooldown for {self.timer} seconds",
-                        shell=True)
-            elif tofu_enabled:
                 if self.tofutimer > 0:
                     self.tofutimer -= 1
                     if title:
-                        Popen(
-                            f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Tof"
-                            f"u on cooldown for {self.tofutimer} seconds",
-                            shell=True)
+                        await asyncio.create_subprocess_shell(
+                            f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                            f"cooldown for {self.timer} seconds - Tofu on cooldown for {self.tofutimer} seconds"
+                        )
+                elif title:
+                    await asyncio.create_subprocess_shell(
+                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - On "
+                        f"cooldown for {self.timer} seconds"
+                    )
+            elif self.tofutimer > 0:
+                self.tofutimer -= 1
+                if title:
+                    await asyncio.create_subprocess_shell(
+                        f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Tof"
+                        f"u on cooldown for {self.tofutimer} seconds"
+                    )
             elif title:
-                Popen(
-                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready",
-                    shell=True)
+                await asyncio.create_subprocess_shell(
+                    f"title Karuta Sniper {v} - Collected {self.collected} cards - Missed {self.missed} cards - Ready"
+                )
 
     async def update_files(self):
         with open("keywords\\characters.txt") as ff:
@@ -869,8 +760,9 @@ class Main(discord.Client):
 
     async def filewatch(self, path):
         bruh = api.FileWatch(path)
+        dprint(f"Filewatch activated for {path}")
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             if bruh.watch():
                 await self.update_files()
 
@@ -880,7 +772,11 @@ class Main(discord.Client):
             await asyncio.sleep(1)
             if bruh.watch():
                 with open("config.json") as ff:
-                    pass  # TODO: stuff
+                    config = json.load(ff)
+                    global accuracy
+                    accuracy = float(config["accuracy"])
+                    self.tcc = config["tofu"]["tcc"]
+                    dprint(f"Updated tcc to {self.tcc}")
 
     async def autofarm(self):
         channel = self.get_channel(resourcechannel)
@@ -889,27 +785,27 @@ class Main(discord.Client):
                 await asyncio.sleep(random.uniform(0.2, 1))
             await channel.send("kw")
             async for message in channel.history(limit=1):
-                print(message.content)
+                dprint(message.content)
                 if "you do not have" in message.content:
-                    print("Autofarm - You dont have a permit")
+                    tprint("Autofarm - You dont have a permit")
                 else:
                     matches = re.search(r"(\d+) hours", message.content)
                     match1 = re.search(r"(\d+) hour", message.content)
                     match0 = re.search(r"(\d+) minute", message.content)
                     if matches:
                         hours = int(match1.group(1))
-                        print(f"Autofarm - Waiting for {hours} hours to work again")
+                        tprint(f"Autofarm - Waiting for {hours} hours to work again")
                         await asyncio.sleep(hours * 3600 + 5)
                     elif match1:
                         hours = int(match1.group(1))
-                        print(f"Autofarm - Waiting for {hours} hour to work again")
+                        tprint(f"Autofarm - Waiting for {hours} hour to work again")
                         await asyncio.sleep(hours * 3600 + 5)
                     elif match0:
                         minutes = int(match0.group(1))
-                        print(f"Autofarm - Waiting for {minutes} minutes to work again")
+                        tprint(f"Autofarm - Waiting for {minutes} minutes to work again")
                         await asyncio.sleep(minutes * 3600 + 5)
                     else:
-                        print("Autofarm - Processing...")
+                        tprint("Autofarm - Processing...")
                 if message is not None:
                     reply = await self.wait_for(
                         "message", check=lambda m: m.author.id == 646937666251915264
@@ -917,7 +813,7 @@ class Main(discord.Client):
                     if reply:
                         await self.autofindresource()
                         await reply.components[0].children[1].click()
-                        print("Autofarm - Worked successfully!")
+                        tprint("Autofarm - Worked successfully!")
                         await asyncio.sleep(12 * 3600 + 5)  # 12 hours
 
     async def autofindresource(self):
@@ -949,8 +845,8 @@ class Main(discord.Client):
         channel = self.get_channel(autodropchannel)
         while True:
             await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
-            while not self.timer == 0:
-                pass
+            if self.timer != 0:
+                await asyncio.sleep(self.timer)
             async with channel.typing():
                 await asyncio.sleep(random.uniform(0.2, 1))
             await channel.send("kd")
@@ -960,8 +856,8 @@ class Main(discord.Client):
         channel = self.get_channel(summonchannel)
         while True:
             await asyncio.sleep(tofu_delay + random.randint(tofu_min, tofu_max))
-            while not self.tofutimer == 0:
-                pass
+            if self.tofutimer != 0:
+                await asyncio.sleep(self.tofutimer)
             async with channel.typing():
                 await asyncio.sleep(random.uniform(0.2, 1))
             await channel.send("ts")
@@ -971,7 +867,6 @@ class Main(discord.Client):
         dprint(f"Clicked on Button")
         self.timer += 60
         self.missed += 1
-        self.react = False
 
     async def tofuafterclick(self):
         dprint(f"Clicked on Button")
@@ -1002,6 +897,10 @@ def dprint(message):
     if debug:
         tprint(f"{Fore.LIGHTRED_EX}Debug{Fore.BLUE} - {message}")
 
+
+def vprint(message):
+    if verbose:
+        tprint(f"{Fore.CYAN}{message}{Fore.WHITE}")
 
 def update_check():
     return requests.get(url=update_url).text
