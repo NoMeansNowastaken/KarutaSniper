@@ -4,6 +4,6 @@ pytesseract
 requests
 colorama
 opencv-python
-discord.py-self
+git+https://github.com/dolfies/discord.py-self.git
 pypiwin32
 pycryptodome
