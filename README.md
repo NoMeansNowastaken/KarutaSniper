@@ -111,6 +111,11 @@ I wont explain features that explain themselves
 - rewrote a bunch of stuff so shit prolly gonna break
 - bug fixes
 
+### v2.2.1
+
+- bug fixes
+- minor changes
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI, Mudae, ~~Tofu~~); this might never happen/take a long time to be implemented

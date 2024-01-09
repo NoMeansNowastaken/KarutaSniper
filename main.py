@@ -18,9 +18,8 @@ from lib.ocr import *
 
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
-tofu_match = r"(is summoning 2 cards!)|(Server activity has summoned)"
 path_to_ocr = "temp"
-v = "v2.2"
+v = "v2.2.1"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -442,6 +441,7 @@ class Main(discord.Client):
         if cid not in tofu_channels:
             return
 
+        tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
         cool = re.search(tofu_match, message.content)
         if cool:
             if self.tofutimer != 0:
@@ -888,7 +888,7 @@ def isbutton(data):
 
 def tprint(message):
     if timestamp:
-        print(f"{Fore.LIGHTBLUE_EX}{current_time()} - {Fore.RESET}{message}")
+        print(f"{Fore.LIGHTBLUE_EX}{current_time()} | {Fore.RESET}{message}")
     else:
         print(message)
 
