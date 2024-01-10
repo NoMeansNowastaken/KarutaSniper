@@ -5,17 +5,16 @@ import re
 
 import Levenshtein
 from Crypto.Cipher import AES
+
 if os.name == "nt":
     from win32crypt import CryptUnprotectData
 
 
 def isSomething(inp, list_of_interested, accuracy):
-    if list_of_interested is list:
+    if type(list_of_interested) is list:
         for seggs in list_of_interested:
             if Levenshtein.ratio(inp, seggs) >= accuracy:
                 return True
-            else:
-                pass
         return False
     else:
         if Levenshtein.ratio(inp, list_of_interested) >= accuracy:
