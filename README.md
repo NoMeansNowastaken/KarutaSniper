@@ -35,6 +35,9 @@ Run main.py, Characters and Animes to snipe are in keywords
 
 Note that sometimes the ocr can misread names and pick up cards you dont want. This is especially true for reading print numbers, so expect falses until it is improved
 
+If you see something like H1 in the update notice, you should probably update as it stands for hotfix and usually fixes
+major bugs
+
 
 ## Feature Explanation
 
@@ -115,6 +118,10 @@ I wont explain features that explain themselves
 
 - bug fixes
 - minor changes
+
+### v2.2.2
+
+- vastly improve ocr
 
 ## TODO
 

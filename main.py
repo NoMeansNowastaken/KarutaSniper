@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.2.1H1"
+v = "v2.2.2"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"

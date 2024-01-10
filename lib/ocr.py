@@ -36,24 +36,21 @@ async def tofu_get_top(input0, output):
     img0 = cv2.imread(input0)
     crop_img = img0[27:77, 54:259]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    th = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 4)
-    cv2.imwrite(output, th)
+    cv2.imwrite(output, gray)
 
 
 async def get_bottom(input0, output):
     img = cv2.imread(input0)
     crop_img = img[55 + 255: 110 + 255, 45:235]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    th = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 4)
-    cv2.imwrite(output, th)
+    cv2.imwrite(output, gray)
 
 
 async def tofu_get_bottom(input0, output):
     img = cv2.imread(input0)
     crop_img = img[400:452, 55:260]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    th, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_OTSU)
-    cv2.imwrite(output, binary)
+    cv2.imwrite(output, gray)
 
 
 async def get_print(input0, output):
@@ -65,7 +62,6 @@ async def get_print(input0, output):
 
 async def tofu_get_print(input0, output):
     img0 = cv2.imread(input0)
-    crop_img = img0[362:387, 210:264]
+    crop_img = img0[360:387, 209:265]
     gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    th, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_OTSU)
-    cv2.imwrite(output, binary)
+    cv2.imwrite(output, gray)
