@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.2.2"
+v = "v2.2.3"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -310,6 +310,12 @@ class Main(discord.Client):
                     )
             vprint(f"Anilist: {anilist}")
             vprint(f"Charlist: {charlist}")
+            for i, number in enumerate(printlist):
+                try:
+                    printlist[i] = int(re.sub(" \d$| ", "", number))
+                except ValueError:
+                    dprint(f"{Fore.RED}ValueError - current string: {number}")
+                    printlist[i] = 9999999
             vprint(f"Printlist: {printlist}")
 
             def emoji(i):
@@ -344,8 +350,12 @@ class Main(discord.Client):
                     if isbutton(cid):
                         # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                         await self.wait_for("message_edit", check=mcheck)
-                        await self.buttons[i].click()
-                        await self.afterclick()
+                        try:
+                            await self.buttons[i].click()
+                            await self.afterclick()
+                        except discord.errors.HTTPException:
+                            tprint(
+                                f"{Fore.RED}womp womp button clicking failed if the issue persists try a smaller server")
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -372,8 +382,12 @@ class Main(discord.Client):
                     if isbutton(cid):
                         # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                         await self.wait_for("message_edit", check=mcheck)
-                        await self.buttons[i].click()
-                        await self.afterclick()
+                        try:
+                            await self.buttons[i].click()
+                            await self.afterclick()
+                        except discord.errors.HTTPException:
+                            tprint(
+                                f"{Fore.RED}womp womp button clicking failed if the issue persists try a smaller server")
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -381,11 +395,6 @@ class Main(discord.Client):
                         await self.react_add(reaction, emoji(i))
             if cprint:
                 for i, prin in enumerate(printlist):
-                    try:
-                        prin = int(re.sub(" \d$| ", "", prin))
-                    except ValueError:
-                        prin = 999999
-                        dprint(f"ValueError - current string: {prin}")
                     if (
                             prin <= pn
                             and anilist[i] not in self.aniblacklist
@@ -394,7 +403,7 @@ class Main(discord.Client):
                         tprint(
                             f"{Fore.GREEN}Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
                         )
-                        self.url = message.attachments[0].url
+                        self.url = re.sub(r"\?.*", "", message.attachments[0].url)
                         if loghits:
                             with open("log.txt", "a") as ff:
                                 if timestamp:
@@ -406,8 +415,12 @@ class Main(discord.Client):
                         if isbutton(cid):
                             # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                             await self.wait_for("message_edit", check=mcheck)
-                            await self.buttons[i].click()
-                            await self.afterclick()
+                            try:
+                                await self.buttons[i].click()
+                                await self.afterclick()
+                            except discord.errors.HTTPException:
+                                tprint(
+                                    f"{Fore.RED}womp womp button clicking failed if the issue persists try a smaller server")
                         else:
                             reaction = await self.wait_for(
                                 "reaction_add", check=check
@@ -530,6 +543,12 @@ class Main(discord.Client):
                     )
             vprint(f"Tofu Anilist: {anilist}")
             vprint(f"Tofu Charlist: {charlist}")
+            for i, number in enumerate(printlist):
+                try:
+                    printlist[i] = int(re.sub(" \d$| ", "", number))
+                except ValueError:
+                    dprint(f"{Fore.RED}[Tofu] ValueError - current string: {number}")
+                    printlist[i] = 9999999
             vprint(f"Tofu Printlist: {printlist}")
 
             def emoji(i):
@@ -552,7 +571,7 @@ class Main(discord.Client):
                     tprint(
                         f"{Fore.GREEN}[Tofu] Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
                     )
-                    self.tofuurl = message.attachments[0].url
+                    self.tofuurl = re.sub(r"\?.*", "", message.attachments[0].url)
                     if loghits:
                         with open("log.txt", "a") as ff:
                             if timestamp:
@@ -564,8 +583,12 @@ class Main(discord.Client):
                     if isbutton(cid):
                         # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                         await self.wait_for("message_edit", check=mcheck)
-                        await self.buttons[i].click()
-                        await self.tofuafterclick()
+                        try:
+                            await self.tofubuttons[i].click()
+                            await self.tofuafterclick()
+                        except discord.errors.HTTPException:
+                            tprint(
+                                f"{Fore.RED}[Tofu] womp womp button clicking failed if the issue persists try a smaller server")
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -592,8 +615,12 @@ class Main(discord.Client):
                     if isbutton(cid):
                         # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                         await self.wait_for("message_edit", check=mcheck)
-                        await self.buttons[i].click()
-                        await self.tofuafterclick()
+                        try:
+                            await self.tofubuttons[i].click()
+                            await self.tofuafterclick()
+                        except discord.errors.HTTPException:
+                            tprint(
+                                f"{Fore.RED}[Tofu] womp womp button clicking failed if the issue persists try a smaller server")
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -601,12 +628,6 @@ class Main(discord.Client):
                         await self.tofu_react_add(reaction, emoji(i))
                 if tofu_cprint:
                     for i, prin in enumerate(printlist):
-                        try:
-                            prin = int(prin)
-                        except ValueError:
-                            if prin != "":
-                                dprint(f"[Tofu] ValueError - current string: {prin}")
-                            prin = 999999
                         if (
                                 prin <= pn
                                 and anilist[i] not in self.aniblacklist
@@ -627,8 +648,12 @@ class Main(discord.Client):
                             if isbutton(cid):
                                 # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                                 await self.wait_for("message_edit", check=mcheck)
-                                await self.buttons[i].click()
-                                await self.tofuafterclick()
+                                try:
+                                    await self.tofubuttons[i].click()
+                                    await self.tofuafterclick()
+                                except discord.errors.HTTPException:
+                                    tprint(
+                                        f"{Fore.RED}[Tofu] womp womp button clicking failed if the issue persists try a smaller server")
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check

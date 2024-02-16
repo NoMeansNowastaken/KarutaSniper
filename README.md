@@ -43,9 +43,9 @@ major bugs
 
 I wont explain features that explain themselves
 
-- DropDelay - how long to wait in between autodrops (in seconds)
-- Randmin + randmax - extra delay added to dropdelay to look less robotic
-- Log Hits - log everytime it finds a card to log.txt along with the card image
+- DropDelay - How long to wait in between autodrops (in seconds)
+- Randmin + randmax - Extra delay added to dropdelay to look less robotic
+- Log Hits - Log everytime it finds a card to log.txt along with the card image
 - Log Collection - Log every card it collects as well as the image
 - Check Print - Collect cards based on their print number (set by print_number)
 - Accuracy - Ocr (computer reading text) is not always accurate, so this will allow some misread characters, but at the cost of some false hits. Increase this for less falses, but also less forgiveness (and vice versa)
@@ -122,6 +122,10 @@ I wont explain features that explain themselves
 ### v2.2.2
 
 - vastly improve ocr
+
+### v2.2.3
+
+- minor improvements
 
 ## TODO
 

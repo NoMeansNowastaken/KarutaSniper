@@ -34,7 +34,7 @@
     "grab_random": true,
     "dropdelay": 1269,
     "randmin": 69,
-    "randmax": 420,
-    "tcc": "--psm 6 --oem 3 --user-words '\\lib\\characters.txt' -c tessedit_char_whitelist='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@&0123456789/:'"
+    "randmax": 300,
+    "tcc": "--psm 6 --oem 3 --user-words '\\lib\\characters.txt' -c tessedit_char_whitelist='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@&0123456789/: '"
   }
 }
