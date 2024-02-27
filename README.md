@@ -127,6 +127,12 @@ I wont explain features that explain themselves
 
 - minor improvements
 
+## v2.3
+
+- buttons fixed
+- less laggy
+- removed christmas event
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI, Mudae, ~~Tofu~~); this might never happen/take a long time to be implemented

@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.2.3"
+v = "v2.3"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -36,6 +36,7 @@ else:
 
 token = config["token"]
 channels = config["channels"]
+guilds = config["servers"]
 accuracy = float(config["accuracy"])
 blaccuracy = float(config["blaccuracy"])
 loghits = config["log_hits"]
@@ -46,7 +47,6 @@ autodrop = config["autodrop"]
 debug = config["debug"]
 cprint = config["check_print"]
 autofarm = config["autofarm"]
-christmas = config["christmas"]
 tofu_enabled = config["tofu"]["enabled"]
 verbose = config["very_verbose"]
 if autofarm:
@@ -93,7 +93,6 @@ class Main(discord.Client):
             self.tofu_current_card = None
             self.tofureact = False
             self.tofuurl = None
-            self.tofubuttons = None
             self.tcc = tcc
         if autofarm:
             self.button = None
@@ -124,15 +123,14 @@ class Main(discord.Client):
             tprint(
                 f"{Fore.RED}You are on version {v}, while the latest version is {latest_ver}"
             )
-        if not christmas:
-            tprint(f"{Fore.GREEN}Note: Christmas event off by default, set christmas to true in config if you want "
-                   f"it to grab bows (experimental feature, use at your own risk)")
         dprint(f"discord.py-self version {discord.__version__}")
         dprint(f"Tesseract version {pytesseract.get_tesseract_version()}")
         if beta:
             tprint(f"{Fore.RED}[!] You are on the beta branch, please report all actual issues to the github repo")
         await self.update_files()
         dprint(f"Tofu Status: {tofu_enabled}")
+        for guild in guilds:
+            await self.get_guild(guild).subscribe(typing=True, activities=False, threads=False, member_updates=False)
         asyncio.get_event_loop().create_task(self.cooldown())
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\animes.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
@@ -152,14 +150,14 @@ class Main(discord.Client):
                 asyncio.get_event_loop().create_task(self.summon())
         self.ready = True
 
-    async def on_reaction_add(self, reaction, user):
-        if not self.ready or user.id != 646937666251915264 or reaction.message.channel.id not in channels:
-            return
-        if str(reaction.emoji) == "🎀" and christmas:
-            dprint("Ribbon Detected")
-            await asyncio.sleep(random.uniform(0.1, 0.74))
-            await reaction.message.add_reaction(reaction.emoji)
-            tprint("Clicked on a ribbon")
+    # async def on_reaction_add(self, reaction, user):
+    #     if not self.ready or user.id != 646937666251915264 or reaction.message.channel.id not in channels:
+    #         return
+    #     if str(reaction.emoji) == "🎀" and christmas:
+    #         dprint("Ribbon Detected")
+    #         await asyncio.sleep(random.uniform(0.1, 0.74))
+    #         await reaction.message.add_reaction(reaction.emoji)
+    #         tprint("Clicked on a ribbon")
 
     async def on_message(self, message):
         cid = message.channel.id
@@ -174,7 +172,7 @@ class Main(discord.Client):
             return
 
         def mcheck(before, after):
-            if before.id == message.id:
+            if before.id == message.id and not after.components[0].children[0].disabled:
                 dprint("Message edit found")
                 try:
                     self.buttons = after.components[0].children
@@ -184,25 +182,25 @@ class Main(discord.Client):
             else:
                 return False
 
-        def check(reaction, user):
-            return reaction.message.id == message.id
+        def check(reaction0, user):
+            return reaction0.message.id == message.id
 
-        if isbutton(cid) and christmas:
-            if message.components:
-                buttons = message.components[0].children
-                if len(buttons) == 4 and buttons[3].emoji == "🎀":
-                    dprint("Ribbon Detected")
-                    await self.wait_for("message_edit", check=mcheck)
-                    await buttons[3].click()
-                    tprint("Clicked on a ribbon")
+        # if isbutton(cid) and christmas:
+        #     if message.components:
+        #         buttons = message.components[0].children
+        #         if len(buttons) == 4 and buttons[3].emoji == "🎀":
+        #             dprint("Ribbon Detected")
+        #             await self.wait_for("message_edit", check=mcheck)
+        #             await buttons[3].click()
+        #             tprint("Clicked on a ribbon")
 
         if re.search("A wishlisted card is dropping!", message.content):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
 
-        if re.search(match, message.content):
-            if self.timer != 0:
-                return
+        if self.timer != 0:
+            return
 
+        if re.search(match, message.content):
             with open("temp\\card.webp", "wb") as file:
                 file.write(requests.get(message.attachments[0].url).content)
             if filelength("temp\\card.webp") == 836:
@@ -318,8 +316,8 @@ class Main(discord.Client):
                     printlist[i] = 9999999
             vprint(f"Printlist: {printlist}")
 
-            def emoji(i):
-                match i:
+            def emoji(b):
+                match b:
                     case 0:
                         return "1️⃣"
                     case 1:
@@ -348,14 +346,9 @@ class Main(discord.Client):
                             else:
                                 ff.write(f"Character: {character} - {self.url}\n")
                     if isbutton(cid):
-                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                        await self.wait_for("message_edit", check=mcheck)
-                        try:
-                            await self.buttons[i].click()
-                            await self.afterclick()
-                        except discord.errors.HTTPException:
-                            tprint(
-                                f"{Fore.RED}womp womp button clicking failed if the issue persists try a smaller server")
+                        await asyncio.sleep(random.uniform(0.55, 1.08))
+                        await self.buttons[i].click()
+                        await self.afterclick()
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -380,14 +373,9 @@ class Main(discord.Client):
                             else:
                                 ff.write(f"Anime: {anime} - {self.url}\n")
                     if isbutton(cid):
-                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                        await self.wait_for("message_edit", check=mcheck)
-                        try:
-                            await self.buttons[i].click()
-                            await self.afterclick()
-                        except discord.errors.HTTPException:
-                            tprint(
-                                f"{Fore.RED}womp womp button clicking failed if the issue persists try a smaller server")
+                        await asyncio.sleep(random.uniform(0.55, 1.08))
+                        await self.buttons[i].click()
+                        await self.afterclick()
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -413,14 +401,10 @@ class Main(discord.Client):
                                 else:
                                     ff.write(f"Print Number {prin} - {self.url}\n")
                         if isbutton(cid):
-                            # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
                             await self.wait_for("message_edit", check=mcheck)
-                            try:
-                                await self.buttons[i].click()
-                                await self.afterclick()
-                            except discord.errors.HTTPException:
-                                tprint(
-                                    f"{Fore.RED}womp womp button clicking failed if the issue persists try a smaller server")
+                            await asyncio.sleep(random.uniform(0.55, 1.08))
+                            await self.buttons[i].click()
+                            await self.afterclick()
                         else:
                             reaction = await self.wait_for(
                                 "reaction_add", check=check
@@ -451,15 +435,12 @@ class Main(discord.Client):
 
     async def tofu(self, message):
         cid = message.channel.id
-        if cid not in tofu_channels:
+        if cid not in tofu_channels or self.tofutimer != 0:
             return
 
         tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
         cool = re.search(tofu_match, message.content)
         if cool:
-            if self.tofutimer != 0:
-                return
-
             with open("temp\\tofu\\card.webp", "wb") as file:
                 file.write(requests.get(message.attachments[0].url).content)
             if filelength("temp\\tofu\\card.webp") == 940:
@@ -485,19 +466,9 @@ class Main(discord.Client):
             anilist = []
             charlist = []
             printlist = []
-            def check(reaction, user):
-                return reaction.message.id == message.id
 
-            def mcheck(before, after):
-                if before.id == message.id:
-                    dprint("Message edit found")
-                    try:
-                        self.tofubuttons = after.components[0].children
-                        return True
-                    except IndexError:
-                        pass  # i think its a library issue
-                else:
-                    return False
+            def check(reaction0, user):
+                return reaction0.message.id == message.id
 
             for img in onlyfiles:
                 if "top" in img:
@@ -551,8 +522,8 @@ class Main(discord.Client):
                     printlist[i] = 9999999
             vprint(f"Tofu Printlist: {printlist}")
 
-            def emoji(i):
-                match i:
+            def emoji(ii):
+                match ii:
                     case 0:
                         return "1️⃣"
                     case 1:
@@ -581,14 +552,9 @@ class Main(discord.Client):
                             else:
                                 ff.write(f"[Tofu] Character: {character} - {self.url}\n")
                     if isbutton(cid):
-                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                        await self.wait_for("message_edit", check=mcheck)
-                        try:
-                            await self.tofubuttons[i].click()
-                            await self.tofuafterclick()
-                        except discord.errors.HTTPException:
-                            tprint(
-                                f"{Fore.RED}[Tofu] womp womp button clicking failed if the issue persists try a smaller server")
+                        await asyncio.sleep(random.uniform(0.55, 1.08))
+                        await message.components[0].children[i].click()
+                        await self.tofuafterclick()
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
@@ -613,25 +579,20 @@ class Main(discord.Client):
                             else:
                                 ff.write(f"[Tofu] Anime: {anime} - {self.url}\n")
                     if isbutton(cid):
-                        # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                        await self.wait_for("message_edit", check=mcheck)
-                        try:
-                            await self.tofubuttons[i].click()
-                            await self.tofuafterclick()
-                        except discord.errors.HTTPException:
-                            tprint(
-                                f"{Fore.RED}[Tofu] womp womp button clicking failed if the issue persists try a smaller server")
+                        await asyncio.sleep(random.uniform(0.55, 1.08))
+                        await message.components[0].children[i].click()
+                        await self.tofuafterclick()
                     else:
                         reaction = await self.wait_for(
                             "reaction_add", check=check
                         )
                         await self.tofu_react_add(reaction, emoji(i))
                 if tofu_cprint:
-                    for i, prin in enumerate(printlist):
+                    for l, prin in enumerate(printlist):
                         if (
                                 prin <= pn
-                                and anilist[i] not in self.aniblacklist
-                                and charlist[i] not in self.charblacklist
+                                and anilist[l] not in self.aniblacklist
+                                and charlist[l] not in self.charblacklist
                         ):
                             tprint(
                                 f"{Fore.GREEN}[Tofu] Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
@@ -646,14 +607,9 @@ class Main(discord.Client):
                                     else:
                                         ff.write(f"[Tofu] Print Number {prin} - {self.url}\n")
                             if isbutton(cid):
-                                # dprint(f"{Fore.LIGHTRED_EX}Button Data: {buttons[0]}")
-                                await self.wait_for("message_edit", check=mcheck)
-                                try:
-                                    await self.tofubuttons[i].click()
-                                    await self.tofuafterclick()
-                                except discord.errors.HTTPException:
-                                    tprint(
-                                        f"{Fore.RED}[Tofu] womp womp button clicking failed if the issue persists try a smaller server")
+                                await asyncio.sleep(random.uniform(0.55, 1.08))
+                                await message.components[0].children[l].click()
+                                await self.tofuafterclick()
                             else:
                                 reaction = await self.wait_for(
                                     "reaction_add", check=check
@@ -664,8 +620,7 @@ class Main(discord.Client):
                 self.tofuurl = ""
                 tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
                 if isbutton(cid):
-                    await self.wait_for("message_edit", check=mcheck)
-                    await self.tofubuttons[3].click()
+                    await message.components[0].children[3].click()
                     await self.tofuafterclick()
                 else:
                     self.missed += 1
@@ -927,6 +882,7 @@ def vprint(message):
     if verbose:
         tprint(f"{Fore.CYAN}{message}{Fore.WHITE}")
 
+
 def update_check():
     return requests.get(url=update_url).text
 
@@ -939,7 +895,7 @@ if token == "":
         token = api.get_tokens(False)
         input("Press any key to exit...")
 
-client = Main()
+client = Main(guild_subscriptions=False)
 tprint(f"{Fore.GREEN}Starting Bot{Fore.RESET}")
 try:
     client.run(token)

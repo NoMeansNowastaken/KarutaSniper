@@ -1,5 +1,9 @@
 {
   "token": "",
+  "servers": [
+    648031568756998155,
+    750351983700869221
+  ],
   "channels": [
     648044573536550922,
     826968791992500306
@@ -21,7 +25,6 @@
   "very_verbose": false,
   "check_print": true,
   "print_number": 1000,
-  "christmas": true,
   "tofu": {
     "enabled": true,
     "channels": [
