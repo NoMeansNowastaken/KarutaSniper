@@ -54,84 +54,16 @@ I wont explain features that explain themselves
 
 ## Changelog
 
-### b1.2.3
-
-- added support for print numbers
-
-### b2.0
-
-- fixed weird newline that was appearing
-- reactions work again
-- tried to make print have less falses, but theres no general cropping solution
-- buttons now work
-
-### v2.0rc0
-
-- code looks better now
-- removed useless shit
-- just making sure there arent any bugs
-
-### v2.0
-
-- well i merged the wrong way so update ig
-
-## v2.1
-
-- aniblacklist also now works with character hits and vice versa
-- blacklist now follows accuracy setting as well
-- autofarm (thanks vu)
-- install.bat also now checks for admin privileges as its needed
-- fixed errors that came with rewriting stuff
-- small improvements to ui
-- christmas update
-- added support for tofu bot
-
-### v2.1.1
-
-- fixed typos
-- improved some functions
-- added more stuff for tofu bot
-
-### v2.1.2
-
-- major bug fixes
-
-### v2.1.3
-
-- minor fixes
-
-### v2.1.4
-
-- more fixes
-
-### v2.1.5
-
-- improvements for non windows platforms
-- bug fixes
-
-## v2.2
-
-- rewrote a bunch of stuff so shit prolly gonna break
-- bug fixes
-
-### v2.2.1
-
-- bug fixes
-- minor changes
-
-### v2.2.2
-
-- vastly improve ocr
-
-### v2.2.3
-
-- minor improvements
-
 ## v2.3
 
 - buttons fixed
 - less laggy
 - removed christmas event
+
+## v2.3.1
+
+- minor changes
+- blessing support
 
 ## TODO
 

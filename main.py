@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.3"
+v = "v2.3.1"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -130,7 +130,11 @@ class Main(discord.Client):
         await self.update_files()
         dprint(f"Tofu Status: {tofu_enabled}")
         for guild in guilds:
-            await self.get_guild(guild).subscribe(typing=True, activities=False, threads=False, member_updates=False)
+            try:
+                await self.get_guild(guild).subscribe(typing=True, activities=False, threads=False,
+                                                      member_updates=False)
+            except AttributeError:
+                tprint(f"{Fore.RED}Error when subscribing to a server, maybe theres a server you aren't in")
         asyncio.get_event_loop().create_task(self.cooldown())
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\animes.txt"))
         asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
@@ -197,10 +201,7 @@ class Main(discord.Client):
         if re.search("A wishlisted card is dropping!", message.content):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
 
-        if self.timer != 0:
-            return
-
-        if re.search(match, message.content):
+        if self.timer == 0 and re.search(match, message.content):
             with open("temp\\card.webp", "wb") as file:
                 file.write(requests.get(message.attachments[0].url).content)
             if filelength("temp\\card.webp") == 836:
@@ -432,6 +433,9 @@ class Main(discord.Client):
                         )
                     else:
                         ff.write(f"Card: {a.group(1)} - {self.url}\n")
+        elif re.search(f"<@{str(self.user.id)}> your \*\*(Generosity|Evasion)", message.content):
+            dprint("Blessing detected resetting cd")
+            self.timer = 0
 
     async def tofu(self, message):
         cid = message.channel.id
