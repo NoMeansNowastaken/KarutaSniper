@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.3.1"
+v = "v2.3.2"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -335,7 +335,7 @@ class Main(discord.Client):
                         and not api.isSomething(anilist[i], self.aniblacklist, blaccuracy)
                 ):
                     tprint(
-                        f"{Fore.GREEN}Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
+                        f"{Fore.GREEN}[{message.channel.name}] Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
                     )
                     self.url = message.attachments[0].url
                     if loghits:
@@ -347,6 +347,7 @@ class Main(discord.Client):
                             else:
                                 ff.write(f"Character: {character} - {self.url}\n")
                     if isbutton(cid):
+                        await self.wait_for("message_edit", check=mcheck)
                         await asyncio.sleep(random.uniform(0.55, 1.08))
                         await self.buttons[i].click()
                         await self.afterclick()
@@ -362,7 +363,7 @@ class Main(discord.Client):
                         and not api.isSomething(anime, self.aniblacklist, blaccuracy)
                 ):
                     tprint(
-                        f"{Fore.GREEN}Found Anime: {Fore.MAGENTA}{anime} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charlist[i]}{Fore.RESET}"
+                        f"{Fore.GREEN}[{message.channel.name}] Found Anime: {Fore.MAGENTA}{anime} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charlist[i]}{Fore.RESET}"
                     )
                     self.url = message.attachments[0].url
                     if loghits:
@@ -374,6 +375,7 @@ class Main(discord.Client):
                             else:
                                 ff.write(f"Anime: {anime} - {self.url}\n")
                     if isbutton(cid):
+                        await self.wait_for("message_edit", check=mcheck)
                         await asyncio.sleep(random.uniform(0.55, 1.08))
                         await self.buttons[i].click()
                         await self.afterclick()
@@ -390,7 +392,7 @@ class Main(discord.Client):
                             and charlist[i] not in self.charblacklist
                     ):
                         tprint(
-                            f"{Fore.GREEN}Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
+                            f"{Fore.GREEN}[{message.channel.name}] Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
                         )
                         self.url = re.sub(r"\?.*", "", message.attachments[0].url)
                         if loghits:
@@ -423,7 +425,7 @@ class Main(discord.Client):
             self.missed -= 1
             self.collected += 1
             tprint(
-                f"{Fore.BLUE}Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(1)}{Fore.RESET}"
+                f"{Fore.BLUE}[{message.channel.name}] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(1)}{Fore.RESET}"
             )
             if logcollection:
                 with open("log.txt", "a") as ff:
@@ -433,9 +435,11 @@ class Main(discord.Client):
                         )
                     else:
                         ff.write(f"Card: {a.group(1)} - {self.url}\n")
-        elif re.search(f"<@{str(self.user.id)}> your \*\*(Generosity|Evasion)", message.content):
-            dprint("Blessing detected resetting cd")
+        elif message.content.startswith(f"<@{str(self.user.id)}>, your **Evasion"):
+            dprint("Evasion blessing detected resetting grab cd")
             self.timer = 0
+        elif message.content.startswith(f"<@{str(self.user.id)}>, your **Generosity"):
+            dprint("Generosity blessing detected resetting drop cd")
 
     async def tofu(self, message):
         cid = message.channel.id
@@ -544,7 +548,7 @@ class Main(discord.Client):
                         and not api.isSomething(anilist[i], self.aniblacklist, blaccuracy)
                 ):
                     tprint(
-                        f"{Fore.GREEN}[Tofu] Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
+                        f"{Fore.GREEN}[Tofu - {message.channel.name}] Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
                     )
                     self.tofuurl = re.sub(r"\?.*", "", message.attachments[0].url)
                     if loghits:
@@ -599,7 +603,7 @@ class Main(discord.Client):
                                 and charlist[l] not in self.charblacklist
                         ):
                             tprint(
-                                f"{Fore.GREEN}[Tofu] Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
+                                f"{Fore.GREEN}[Tofu - {message.channel.name}] Found Print # {Fore.MAGENTA}{prin}{Fore.RESET}"
                             )
                             self.tofuurl = message.attachments[0].url
                             if loghits:
@@ -622,7 +626,7 @@ class Main(discord.Client):
             if cool.group(2) == str(self.user.id) and grandom and not self.tofureact:
                 self.tofureact = True
                 self.tofuurl = ""
-                tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu] No cards found, defaulting to random")
+                tprint(f"{Fore.LIGHTMAGENTA_EX}[Tofu - {message.channel.name}] No cards found, defaulting to random")
                 if isbutton(cid):
                     await message.components[0].children[3].click()
                     await self.tofuafterclick()
@@ -638,7 +642,7 @@ class Main(discord.Client):
             self.missed -= 1
             self.collected += 1
             tprint(
-                f"{Fore.BLUE}[Tofu] Obtained Fusion Token{Fore.RESET}"
+                f"{Fore.BLUE}[Tofu - {message.channel.name}] Obtained Fusion Token{Fore.RESET}"
             )
             if logcollection:
                 with open("log.txt", "a") as ff:
@@ -658,7 +662,7 @@ class Main(discord.Client):
             self.missed -= 1
             self.collected += 1
             tprint(
-                f"{Fore.BLUE}[Tofu] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(4)} from {a.group(3)} | Print #{a.group(2)} | "
+                f"{Fore.BLUE}[Tofu - {message.channel.name}] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(4)} from {a.group(3)} | Print #{a.group(2)} | "
                 f"Condition: {a.group(1)}{Fore.RESET} ")
             if logcollection:
                 with open("log.txt", "a") as ff:

@@ -65,6 +65,11 @@ I wont explain features that explain themselves
 - minor changes
 - blessing support
 
+## v2.3.2
+
+- minor changes
+- fix retardation
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI, Mudae, ~~Tofu~~); this might never happen/take a long time to be implemented

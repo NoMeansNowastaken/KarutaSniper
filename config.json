@@ -26,7 +26,7 @@
   "check_print": true,
   "print_number": 1000,
   "tofu": {
-    "enabled": true,
+    "enabled": false,
     "channels": [
       858004885809922078,
       857978372688445481
