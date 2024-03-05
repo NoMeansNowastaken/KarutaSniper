@@ -21,7 +21,7 @@
   "dropdelay": 1869,
   "randmin": 69,
   "randmax": 420,
-  "debug": false,
+  "debug": true,
   "very_verbose": false,
   "check_print": true,
   "print_number": 1000,

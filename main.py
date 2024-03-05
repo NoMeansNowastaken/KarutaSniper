@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "v2.3.2"
+v = "b2.3.3"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -33,6 +33,8 @@ if os.name == 'nt':
     title = True
 else:
     title = False
+
+ran = False
 
 token = config["token"]
 channels = config["channels"]
@@ -89,6 +91,7 @@ class Main(discord.Client):
         self.cardnum = 0
         self.buttons = None
         self.tofutimer = 0
+        self.rand = 0
         if tofu_enabled:
             self.tofu_current_card = None
             self.tofureact = False
@@ -135,23 +138,26 @@ class Main(discord.Client):
                                                       member_updates=False)
             except AttributeError:
                 tprint(f"{Fore.RED}Error when subscribing to a server, maybe theres a server you aren't in")
-        asyncio.get_event_loop().create_task(self.cooldown())
-        asyncio.get_event_loop().create_task(self.filewatch("keywords\\animes.txt"))
-        asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
-        asyncio.get_event_loop().create_task(
-            self.filewatch("keywords\\aniblacklist.txt")
-        )
-        asyncio.get_event_loop().create_task(
-            self.configwatch("config.json")
-        )
-        asyncio.get_event_loop().create_task(
-            self.filewatch("keywords\\charblacklist.txt")
-        )
-        if autodrop:
-            asyncio.get_event_loop().create_task(self.autodrop())
-        if tofu_enabled:
-            if shouldsummon:
-                asyncio.get_event_loop().create_task(self.summon())
+        global ran
+        if not ran:
+            asyncio.get_event_loop().create_task(self.cooldown())
+            asyncio.get_event_loop().create_task(self.filewatch("keywords\\animes.txt"))
+            asyncio.get_event_loop().create_task(self.filewatch("keywords\\characters.txt"))
+            asyncio.get_event_loop().create_task(
+                self.filewatch("keywords\\aniblacklist.txt")
+            )
+            asyncio.get_event_loop().create_task(
+                self.configwatch("config.json")
+            )
+            asyncio.get_event_loop().create_task(
+                self.filewatch("keywords\\charblacklist.txt")
+            )
+            if autodrop:
+                asyncio.get_event_loop().create_task(self.autodrop())
+            if tofu_enabled:
+                if shouldsummon:
+                    asyncio.get_event_loop().create_task(self.summon())
+            ran = True
         self.ready = True
 
     # async def on_reaction_add(self, reaction, user):
@@ -440,6 +446,7 @@ class Main(discord.Client):
             self.timer = 0
         elif message.content.startswith(f"<@{str(self.user.id)}>, your **Generosity"):
             dprint("Generosity blessing detected resetting drop cd")
+            self.rand = 0
 
     async def tofu(self, message):
         cid = message.channel.id
@@ -832,7 +839,12 @@ class Main(discord.Client):
     async def autodrop(self):
         channel = self.get_channel(autodropchannel)
         while True:
-            await asyncio.sleep(dropdelay + random.randint(randmin, randmax))
+            self.rand = dropdelay + random.randint(randmin, randmax)
+            if (self.rand % 2) == 1:
+                self.rand += 1
+            while self.rand > 0:
+                await asyncio.sleep(2)
+                self.rand -= 2
             if self.timer != 0:
                 await asyncio.sleep(self.timer)
             async with channel.typing():
