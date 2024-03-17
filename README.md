@@ -76,6 +76,11 @@ I wont explain features that explain themselves
 - fix blessings
 - make beta branch up to date
 
+## b2.3.4
+
+- minor changes
+- make requests async
+
 ## TODO
 
 - support for bots similar to karuta (like SOFI, Mudae, ~~Tofu~~); this might never happen/take a long time to be implemented

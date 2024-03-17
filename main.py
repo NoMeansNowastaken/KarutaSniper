@@ -19,7 +19,7 @@ from lib.ocr import *
 init(convert=True)
 match = "(is dropping [3-4] cards!)|(I'm dropping [3-4] cards since this server is currently active!)"
 path_to_ocr = "temp"
-v = "b2.3.3"
+v = "b2.3.4"
 if "v" in v:
     beta = False
     update_url = "https://raw.githubusercontent.com/NoMeansNowastaken/KarutaSniper/master/version.txt"
@@ -208,8 +208,9 @@ class Main(discord.Client):
             dprint("Whishlisted card detected")  # TODO: guess which card is the wishlisted one
 
         if self.timer == 0 and re.search(match, message.content):
-            with open("temp\\card.webp", "wb") as file:
-                file.write(requests.get(message.attachments[0].url).content)
+            await message.attachments[0].save("temp\\card.webp")
+            # with open("temp\\card.webp", "wb") as file:
+            #    file.write(requests.get(message.attachments[0].url).content)
             if filelength("temp\\card.webp") == 836:
                 self.cardnum = 3
                 for a in range(3):
@@ -343,7 +344,7 @@ class Main(discord.Client):
                     tprint(
                         f"{Fore.GREEN}[{message.channel.name}] Found Character: {Fore.MAGENTA}{character} {Fore.LIGHTMAGENTA_EX}from {Fore.LIGHTBLUE_EX}{anilist[i]}{Fore.RESET}"
                     )
-                    self.url = message.attachments[0].url
+                    self.url = re.sub(r"\?.*", "", message.attachments[0].url)
                     if loghits:
                         with open("log.txt", "a") as ff:
                             if timestamp:
@@ -371,7 +372,7 @@ class Main(discord.Client):
                     tprint(
                         f"{Fore.GREEN}[{message.channel.name}] Found Anime: {Fore.MAGENTA}{anime} {Fore.LIGHTMAGENTA_EX}| {Fore.LIGHTBLUE_EX}{charlist[i]}{Fore.RESET}"
                     )
-                    self.url = message.attachments[0].url
+                    self.url = re.sub(r"\?.*", "", message.attachments[0].url)
                     if loghits:
                         with open("log.txt", "a") as ff:
                             if timestamp:
@@ -420,27 +421,27 @@ class Main(discord.Client):
                             )
                             await self.react_add(reaction, emoji(i))
         elif re.search(
-                f"<@{str(self.user.id)}> took the \*\*.*\*\* card `.*`!|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\* card `.*`!",
+                f"<@{str(self.user.id)}> took the \*\*.*\*\*|<@{str(self.user.id)}> fought off .* and took the \*\*.*\*\*",
                 message.content
         ):
             a = re.search(
-                f"<@{str(self.user.id)}>.*took the \*\*(.*)\*\* card `(.*)`!",
+                "\*\*(.*)\*\* card `(.*)`.*\*\*(.*)\*\*",
                 message.content
             )
             self.timer += 540
             self.missed -= 1
             self.collected += 1
             tprint(
-                f"{Fore.BLUE}[{message.channel.name}] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(1)}{Fore.RESET}"
+                f"{Fore.BLUE}[{message.channel.name}] Obtained Card: {Fore.LIGHTMAGENTA_EX}{a.group(1)} — {a.group(2)}{Fore.RED}"
             )
             if logcollection:
                 with open("log.txt", "a") as ff:
                     if timestamp:
                         ff.write(
-                            f"{current_time()} - Card: {a.group(1)} - {self.url}\n"
+                            f"{current_time()} - Card: {a.group(1)} ~~ {a.group(2)}\n"
                         )
                     else:
-                        ff.write(f"Card: {a.group(1)} - {self.url}\n")
+                        ff.write(f"Card: {a.group(1)} ~~ {a.group(2)}\n")
         elif message.content.startswith(f"<@{str(self.user.id)}>, your **Evasion"):
             dprint("Evasion blessing detected resetting grab cd")
             self.timer = 0
@@ -456,8 +457,7 @@ class Main(discord.Client):
         tofu_match = r"(<@(\d*)> is summoning 2 cards!)|(Server activity has summoned)"
         cool = re.search(tofu_match, message.content)
         if cool:
-            with open("temp\\tofu\\card.webp", "wb") as file:
-                file.write(requests.get(message.attachments[0].url).content)
+            await message.attachments[0].save("temp\\tofu\\card.webp")
             if filelength("temp\\tofu\\card.webp") == 940:
                 for a in range(2):
                     await tofu_get_card(
